@@ -1,0 +1,44 @@
+[
+  {
+    name: 'The Garden Restaurant and Banquet',
+    location: { latitude: 27.6609575, longitude: 85.3372145 },
+    rating: 4.6,
+    photoRef: 'AWYs27zjlHkyheAnbERrUkAOLgz37grXgyUWF5bgEN76Hrf5-YSnG1-Umd-JX7k06LafklLgTaaWWdAnFr8lucktF-E2sfaA_kot6j2-i_NPnEKok_mMg-QuVZxUKi2Zu--PvYDvZ2fA5xfA7icm9JEcEhUJKblYoyw4WUyXSdPsWjQN_Ws'
+  },
+  {
+    name: 'Swaad Family Kitchen',
+    location: { latitude: 27.6624266, longitude: 85.3406018 },
+    rating: 4.6,
+    photoRef: 'AWYs27wsz9pUpcIGiKDDSJRos9TlLK03v0nVj-oiwdfy87-bkZSRddB4ecRmWo3iG9A-YaOuqKBKXJcB51bF6Y21vXnR5MUb9P4JWMMSTVEnsRh1OYkmX0JvtXR91_NQ5cMzNe3bIhdZmxCwQMWsghrzyxACnw0FRq3815Wq9rVpshdi_GC2'
+  },
+  {
+    name: 'Musot Sekuwa Adda & Restaurant',
+    location: { latitude: 27.6604066, longitude: 85.3385292 },
+    rating: 4,
+    photoRef: 'AWYs27yctz37CG-VRoCZpa2W5q6qTOGimtZl08ZX22U4O2ENIqZcbZVG8aya-dZSR1YEfaQt2HbUEBGi2-vWb3syE8GzKarjEIg1H-O1lJms2zrIcm1Bh1dB9xaSgYGMh5LcARybb0r69jDKisljTbUpjW1A1UpyzsAVQriKn0p-XJU4jjIK'
+  },
+  {
+    name: 'Restaurant',
+    location: { latitude: 27.6505895, longitude: 85.344308 },
+    rating: 3.9,
+    photoRef: 'AWYs27yY_gdPfrulZFh5ELMw0lRHGgcf80Sncll25f0fflhm-7ASK2Hz4Yl2RFc0py8EJ7XK23AQcMtqdoj5ZHuhb8TU4Dw0WX_oYpvecjDLOhcQQ_JT_oam7Ycw5cSFvmdLkfGkaHFNV2TMRaVGFEflMa91GqWJXr-CtCkP5gfQ9Zu0YCWK'
+  },
+  {
+    name: 'Indreni Garden',
+    location: { latitude: 27.6626702, longitude: 85.3411278 },
+    rating: 3.6,
+    photoRef: 'AWYs27w71g01mX1xR98DDDF19CLxnC5PxCz6g1mydYe3fuRHMRAKUoIsaLbugeWtuGifmVavV4OQIwpOayPyMkyJrKxrtKTc0UrHequeps2gj5sFKPuCJt3nNae5xXfJJNNCGoeg7omqKiEj7FTy3i3RMHX5jckyiH70Mww73V-qPTtXzLy9'
+  },
+  {
+    name: 'Rukh Muniko Kasaudi Kabab and Restaurant',
+    location: { latitude: 27.6499137, longitude: 85.3378144 },
+    rating: 3.9,
+    photoRef: 'AWYs27zxMTkgHAdTlvTUwLHzrAo9WSfQyu4WnegxJ99AFHsRc85hyF_miYWhv1rJj6QcpKmWv7Jvy1nJZeCpSSiyi-X-mx4eYvvFXWJ4IU2aYxIXZZ4ItJZfoQsKe3VquMvHXTKFOpSZsVH5uafvfpT78KUodhT3D-pQysDwVmhxH7pAM8Uh'
+  },
+  {
+    name: '7 Star Sekuwa Stick Food',
+    location: { latitude: 27.6628525, longitude: 85.33981589999999 },
+    rating: 3.9,
+    photoRef: 'AWYs27zApi8WEMBx3nGr74Zi_j1azNKor1_j1hfIyfG08ypSSXKYLJRcqZXXlQaM00I6JrMLAI2hsTzpZepGv4lpp4JYG88klFWOj-N8rHFfTRWjysUAcU5iMXC6XssNR73Rh--1EaSdL2koOGLc2jdldsIuVdFgrXqn2FS7AJ1R6rxbAJHp'
+  }
+]

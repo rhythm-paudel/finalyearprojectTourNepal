@@ -1,0 +1,4 @@
+[
+    { text: "Great place!", email: "user1@example.com", firstname: "John", lastname: "Doe", date: "2024-12-12" },
+    { text: "Loved it!", email: "user2@example.com", firstname: "Jane", lastname: "Smith", date: "2024-12-10" }
+]
