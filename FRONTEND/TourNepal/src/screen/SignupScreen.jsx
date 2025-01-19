@@ -218,6 +218,7 @@ const SignupScreen = () => {
             )}
             {currentPage === 3 && (
               <>
+              
                 <Text style={styles.signUpText}>Upload Documents</Text>
                 <TouchableOpacity
                   style={[

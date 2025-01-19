@@ -2,8 +2,11 @@ import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView 
 import React, { useState } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import { Button } from 'react-native-paper';
+
 
 const LoginScreen = () => {
+  
   const [passwordVisible, setPasswordVisible] = useState(false); //for toggling visibility of the password
 
   const navigation = useNavigation();
@@ -62,6 +65,7 @@ const LoginScreen = () => {
           </View>
         </View>
         <Image source={require("../assets/mountain.png")} style={styles.mountainLogo} />
+        
       </ScrollView>
     </View>
   );
