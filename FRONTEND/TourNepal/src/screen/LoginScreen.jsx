@@ -16,6 +16,11 @@ const LoginScreen = () => {
     navigation.navigate("Signup")
   }
 
+  //redirecting to homescreen
+  const redirectHomescreen = () =>{
+    navigation.navigate("Homescreen")
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} bounces={false}>
@@ -54,7 +59,7 @@ const LoginScreen = () => {
                 />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.loginButton}>
+            <TouchableOpacity style={styles.loginButton} onPress={redirectHomescreen}>
               <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.signupButton} onPress={redirectRegister}>

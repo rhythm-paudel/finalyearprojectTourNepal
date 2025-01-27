@@ -8,6 +8,7 @@ import SignupScreen from './src/screen/SignupScreen';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {PaperProvider } from 'react-native-paper';
+import HomeScreen from './src/screen/HomeScreen';
 
 const Stack = createNativeStackNavigator();
 const App = () => {
@@ -20,6 +21,7 @@ const App = () => {
           }}>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Signup" component={SignupScreen} />
+            <Stack.Screen name="Homescreen" component={HomeScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>
