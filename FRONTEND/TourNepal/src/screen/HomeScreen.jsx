@@ -5,9 +5,11 @@ import {
   View,
   Image,
   ScrollView,
-  TouchableOpacity,
+  
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Header from './Header';
+import  BottomNavigation  from './BottomNavigation';
 
 
 //currently the home screen is static and header and bottom navigation bar are also on the same .jsx file
@@ -16,19 +18,7 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header Section */}
-        <View style={styles.headerContainer}>
-          <Image
-            source={require('../assets/logo.png')} 
-            style={styles.logo}
-          />
-          <Text style={styles.headerText}>TourNepal</Text>
-
-          <TouchableOpacity>
-            <Text>
-              <FontAwesome name="bell" size={24} color="#000" /> 
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <Header/>
 
         {/* Banner Section */}
         <Image
@@ -115,24 +105,7 @@ const HomeScreen = () => {
       </ScrollView>
 
       {/* Bottom Navigation */}
-      <View style={styles.bottomNavigation}>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={[styles.navIcon, { color: 'orange' }]}>🏠</Text>
-          <Text style={[styles.navText, { color: 'orange' }]}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navIcon}>🔍</Text>
-          <Text style={styles.navText}>Search</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navIcon}>🚨</Text>
-          <Text style={styles.navText}>Emergency</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNavigation/>
     </View>
   );
 };
@@ -146,24 +119,6 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
       flexGrow: 1,
-    },
-    headerContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: 10,
-    },
-    logo: {
-      width: 40,
-      height: 40,
-    },
-    headerText: {
-      fontSize: 20,
-      fontWeight: 'bold',
-    },
-    bellIcon: {
-      width: 24,
-      height: 24,
     },
     banner: {
       width: '100%',
@@ -209,23 +164,5 @@ const styles = StyleSheet.create({
     placeName: {
       fontSize: 16,
       fontWeight: 'bold',
-    },
-    bottomNavigation: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      paddingVertical: 10,
-      borderTopWidth: 1,
-      borderTopColor: '#ccc',
-      backgroundColor: '#fff',
-    },
-    navButton: {
-      alignItems: 'center',
-    },
-    navIcon: {
-      fontSize: 18,
-    },
-    navText: {
-      fontSize: 12,
-      color: '#888',
-    },
+    }
   });
