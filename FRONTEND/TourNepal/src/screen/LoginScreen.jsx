@@ -1,82 +1,182 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
-import { Button } from 'react-native-paper';
-
+import * as Animatable from 'react-native-animatable';
 
 const LoginScreen = () => {
-  
-  const [passwordVisible, setPasswordVisible] = useState(false); //for toggling visibility of the password
-
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [emailFocus, setEmailFocus] = useState(false);
+  const [passwordFocus, setPasswordFocus] = useState(false);
   const navigation = useNavigation();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  
+  // animation values for input scaling
+  const emailScale = useRef(new Animated.Value(1)).current;
+  const passwordScale = useRef(new Animated.Value(1)).current;
 
-  //redirecting to login
-  const redirectRegister = () =>{
-    navigation.navigate("Signup")
-  }
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  const handleEmailFocus = () => {
+    setEmailFocus(true);
+    Animated.spring(emailScale, {
+      toValue: 1.02,
+      friction: 4,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleEmailBlur = () => {
+    setEmailFocus(false);
+    Animated.spring(emailScale, {
+      toValue: 1,
+      friction: 4,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePasswordFocus = () => {
+    setPasswordFocus(true);
+    Animated.spring(passwordScale, {
+      toValue: 1.02,
+      friction: 4,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePasswordBlur = () => {
+    setPasswordFocus(false);
+    Animated.spring(passwordScale, {
+      toValue: 1,
+      friction: 4,
+      useNativeDriver: true,
+    }).start();
+  };
+
+   //redirecting to login
+  const redirectRegister = () => {
+    navigation.navigate("Signup");
+  };
 
   //redirecting to homescreen
-  const redirectHomescreen = () =>{
-    navigation.navigate("Homescreen")
-  }
+  const redirectHomescreen = () => {
+    navigation.navigate("Homescreen");
+  };
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} bounces={false}>
-        <View style={styles.content}>
-          <View style={styles.logoContainer}>
+        <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+          <Animatable.View
+            animation="fadeInDown"
+            duration={1000}
+            style={styles.logoContainer}
+          >
             <Image source={require("../assets/logo.png")} style={styles.logo} />
-          </View>
-          <View style={styles.logoNameContainer}>
-            <Text style={styles.logoNameContainerText}>TourNepal</Text>
-          </View>
+          </Animatable.View>
+
+          <Animatable.Text 
+            animation="fadeInDown"
+            duration={1000}
+            style={styles.logoNameContainerText}
+          >
+            TourNepal
+          </Animatable.Text>
+
           <View style={styles.fieldsContainer}>
-            <Text style={styles.signInText}>Sign in to your account</Text>
-            <View style={styles.inputContainer}>
-              <FontAwesome name={"user"} size={20} color="grey" style={styles.inputIcon} />
+            <Animatable.Text 
+              animation="fadeInUp"
+              duration={800}
+              style={styles.signInText}
+            >
+              Sign in to your account
+            </Animatable.Text>
+
+            <Animated.View 
+              style={[
+                styles.inputContainer, 
+                { 
+                  borderColor: emailFocus ? '#3498db' : '#ccc',
+                  transform: [{ scale: emailScale }] 
+                }
+              ]}
+            >
+              <FontAwesome name="user" size={20} color={emailFocus ? '#3498db' : 'grey'} />
               <TextInput
                 style={styles.inputField}
                 placeholder="Email"
+                placeholderTextColor="#888"
                 keyboardType="email-address"
+                onFocus={handleEmailFocus}
+                onBlur={handleEmailBlur}
               />
-            </View>
-            <View style={styles.inputContainer}>
-              <FontAwesome name={"lock"} size={20} color="grey" style={styles.inputIcon} />
+            </Animated.View>
+
+            <Animated.View 
+              style={[
+                styles.inputContainer, 
+                { 
+                  borderColor: passwordFocus ? '#3498db' : '#ccc',
+                  transform: [{ scale: passwordScale }] 
+                }
+              ]}
+            >
+              <FontAwesome name="lock" size={20} color={passwordFocus ? '#3498db' : 'grey'} />
               <TextInput
                 style={styles.inputField}
                 placeholder="Password"
-                secureTextEntry={!passwordVisible} 
+                placeholderTextColor="#888"
+                secureTextEntry={!passwordVisible}
+                onFocus={handlePasswordFocus}
+                onBlur={handlePasswordBlur}
               />
-              <TouchableOpacity
-                onPress={() => setPasswordVisible(!passwordVisible)} 
-              >
+              <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
                 <FontAwesome
-                  name={passwordVisible ? "eye" : "eye-slash"} 
+                  name={passwordVisible ? "eye" : "eye-slash"}
                   size={20}
-                  color="grey"
-                  style={styles.passwordToggleIcon}
+                  color={passwordFocus ? '#3498db' : 'grey'}
                 />
               </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={styles.loginButton} onPress={redirectHomescreen}>
+            </Animated.View>
+
+            <TouchableOpacity 
+              style={styles.loginButton}
+              onPress={redirectHomescreen}
+            >
               <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.signupButton} onPress={redirectRegister}>
+
+            <Animatable.View 
+              animation="fadeInUp"
+              duration={800}
+              style={styles.signupButton}
+            >
               <Text style={styles.signupButtonText}>
-                Don't have an account? <Text style={styles.highlightedText}>Sign Up</Text>
+                Don't have an account?{' '}
+                <Text style={styles.highlightedText} onPress={redirectRegister}>
+                  Sign Up
+                </Text>
               </Text>
-            </TouchableOpacity>
+            </Animatable.View>
           </View>
-        </View>
-        <Image source={require("../assets/mountain.png")} style={styles.mountainLogo} />
-        
+        </Animated.View>
+
+        <Animatable.Image 
+          source={require("../assets/mountain.png")} 
+          style={styles.mountainLogo}
+          animation="fadeInUp"
+          duration={1200}
+        />
       </ScrollView>
     </View>
   );
 };
-
-export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -90,7 +190,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 10,
+    paddingTop: 40,
   },
   logoContainer: {
     justifyContent: "center",
@@ -102,64 +202,57 @@ const styles = StyleSheet.create({
     height: 100,
     resizeMode: "contain",
   },
-  logoNameContainer: {
-    marginBottom: 20,
-  },
   logoNameContainerText: {
     textAlign: "center",
     fontSize: 40,
-    fontWeight: "500",
+    fontWeight: '500',
     color: "#262626",
+    marginBottom: 20,
   },
   fieldsContainer: {
-    width: "90%",
+    width: "85%",
     alignItems: "center",
   },
   signInText: {
     textAlign: "center",
     fontSize: 18,
     color: "#8a8585",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 25, 
+    borderRadius: 25,
     paddingHorizontal: 15,
     marginBottom: 15,
     width: "100%",
     height: 50,
-    backgroundColor: "#f9f9f9", 
+    backgroundColor: "#f9f9f9",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 2, 
-  },
-  inputIcon: {
-    marginRight: 10,
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   inputField: {
     flex: 1,
     fontSize: 16,
-  },
-  passwordToggleIcon: {
+    color: "#262626",
     marginLeft: 10,
   },
   loginButton: {
     backgroundColor: "#3498db",
     width: "100%",
     padding: 15,
-    borderRadius: 25, 
+    borderRadius: 25,
     alignItems: "center",
     marginTop: 10,
-    shadowColor: "#000",
+    shadowColor: "#3498db",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
-    elevation: 3, 
+    elevation: 3,
   },
   loginButtonText: {
     color: "white",
@@ -184,6 +277,8 @@ const styles = StyleSheet.create({
     height: undefined,
     aspectRatio: 16 / 9,
     resizeMode: "cover",
-    marginTop: 10,
+    marginTop: 20,
   },
 });
+
+export default LoginScreen;
