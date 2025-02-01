@@ -3,16 +3,17 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
+
   ScrollView,
   TouchableOpacity,
   TextInput,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Header from './Header';
-import BottomNavigation from './BottomNavigation';
+import Header from '../components/Header';
+import BottomNavigation from '../components/BottomNavigation';
 import { useNavigation } from '@react-navigation/native';
+import PlacesList from '../components/PlacesList';
 
 const Search = () => {
   const [radius, setRadius] = useState(5); //setting initial slider
@@ -56,26 +57,7 @@ const Search = () => {
 
   const renderPlaces = () => {
     return filteredPlaces.map((place) => (
-      <View key={place.id} style={styles.placeCard}>
-        <Image
-          source={require('../assets/placeholder.png')} 
-          style={styles.placeImage}
-        />
-        <View style={styles.placeDetails}>
-          <Text style={styles.placeName}>{place.name}</Text>
-          <Text style={styles.placeRating}>
-            {place.rating} {place.reviews}
-          </Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.navigateButton} onPress={redirectDescriptionScreen}>
-              <Text style={styles.buttonText}>Navigate</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.viewMoreButton}>
-              <Text style={styles.buttonText}>View More</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+      <PlacesList key={place.id} place={place} redirectDescriptionScreen={redirectDescriptionScreen}/>
     ));
   };
 
@@ -203,59 +185,5 @@ const styles = StyleSheet.create({
   placesList: {
     marginTop: 10,
   },
-  placeCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f9f9f9',
-    marginVertical: 5,
-    padding: 10,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  placeImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginRight: 10,
-  },
-  placeDetails: {
-    flex: 1,
-  },
-  placeName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  placeRating: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 10,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  navigateButton: {
-    backgroundColor: '#f16d26',
-    padding: 5,
-    borderRadius: 5,
-    width: '45%',
-    alignItems: 'center',
-  },
-  viewMoreButton: {
-    backgroundColor: '#ddd',
-    padding: 5,
-    borderRadius: 5,
-    width: '45%',
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#000',
-  },
+  
 });

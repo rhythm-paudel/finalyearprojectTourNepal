@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, Linking, ScrollView } from 'react-native';
-import BottomNavigation from './BottomNavigation';
+import BottomNavigation from '../components/BottomNavigation';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const DescriptionScreen = () => {

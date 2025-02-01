@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import Header from './Header';
-import BottomNavigation from './BottomNavigation';
+import Header from '../components/Header';
+import BottomNavigation from '../components/BottomNavigation';
+import NotificationCards from '../components/NotificationCards';
 
 const NotificationScreen = () => {
   const notifications = [ //retreiving list of notifications (static as of now)
@@ -11,15 +12,9 @@ const NotificationScreen = () => {
     { id: 4, type: 'Information', message: 'Your profile has been successfully verified', color: '#d1ecf1' },
   ];
 
-  const renderNotifications = () => { //component for retrieving notifications (will be placed in the main return section)
+  const renderNotifications = () => { //component for retrieving notifications
     return notifications.map((notification) => (
-      <View
-        key={notification.id}
-        style={[styles.notificationCard, { backgroundColor: notification.color }]}
-      >
-        <Text style={styles.notificationType}>{notification.type}!!!</Text>
-        <Text style={styles.notificationMessage}>{notification.message}</Text>
-      </View>
+      <NotificationCards key={notification.id} notification={notification}/>
     ));
   };
 
@@ -58,25 +53,5 @@ const styles = StyleSheet.create({
     color: '#2c3e50',
     marginVertical: 20,
     textAlign: 'center',
-  },
-  notificationCard: {
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  notificationType: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#721c24',
-    marginBottom: 5,
-  },
-  notificationMessage: {
-    fontSize: 16,
-    color: '#555',
-  },
+  }
 });

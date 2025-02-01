@@ -3,17 +3,21 @@ import { NavigationContainer } from '@react-navigation/native'
 import React from 'react'
 
 
-import LoginScreen from './src/screen/LoginScreen';
-import SignupScreen from './src/screen/SignupScreen';
+
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {PaperProvider } from 'react-native-paper';
+
+//screens
+import LoginScreen from './src/screen/LoginScreen';
+import SignupScreen from './src/screen/SignupScreen';
 import HomeScreen from './src/screen/HomeScreen';
 import Search from './src/screen/Search';
 import DescriptionScreen from './src/screen/DescriptionScreen';
 import Emergency from './src/screen/Emergency';
 import Profile from './src/screen/Profile';
 import NotificationScreen from './src/screen/NotificationScreen';
+
 
 const Stack = createNativeStackNavigator();
 const App = () => {
