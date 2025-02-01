@@ -6,10 +6,10 @@ import NotificationCards from '../components/NotificationCards';
 
 const NotificationScreen = () => {
   const notifications = [ //retreiving list of notifications (static as of now)
-    { id: 1, type: 'Alert', message: 'Flood near Thankot area', color: '#f8d7da' },
-    { id: 2, type: 'Information', message: 'Your profile has been successfully verified', color: '#d1ecf1' },
-    { id: 3, type: 'Alert', message: 'Flood near Thankot area', color: '#f8d7da' },
-    { id: 4, type: 'Information', message: 'Your profile has been successfully verified', color: '#d1ecf1' },
+    { id: 1, type: 'Alert', message: 'Flood near Thankot area'},
+    { id: 2, type: 'Information', message: 'Your profile has been successfully verified'},
+    { id: 3, type: 'Alert', message: 'Flood near Thankot area'},
+    { id: 4, type: 'Information', message: 'Your profile has been successfully verified'},
   ];
 
   const renderNotifications = () => { //component for retrieving notifications
