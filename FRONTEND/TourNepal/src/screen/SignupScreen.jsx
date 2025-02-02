@@ -21,7 +21,7 @@ const SignupScreen = () => {
   const [uploadedStatus, setUploadedStatus] = useState({ passport: false, visa: false });
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-   //for toggling between visibility of password
+  //for toggling between visibility of password
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [inputFocus, setInputFocus] = useState({ email: false, password: false, confirmPassword: false });
@@ -92,7 +92,7 @@ const SignupScreen = () => {
     type === 'camera' ? launchCamera(options, callback) : launchImageLibrary(options, callback);
   };
 
-  
+
 
   return (
     <View style={styles.container}>
@@ -119,7 +119,7 @@ const SignupScreen = () => {
                 ]}>
                   <FontAwesome name="envelope" size={20} color={inputFocus.email ? '#3498db' : 'grey'} />
                   <TextInput
-                  value={formData.email}
+                    value={formData.email}
                     style={styles.inputField}
                     placeholder="Email"
                     placeholderTextColor="#888"
@@ -137,11 +137,10 @@ const SignupScreen = () => {
                   <FontAwesome name="calendar" size={20} color="grey" />
                   <TouchableOpacity
                     style={styles.inputField}
-                   
                     onPress={() => setShowDatePicker(true)}
                   >
                     <Text style={[styles.placeholderText, { marginLeft: 10 }]}>
-                      {formData.dob.toDateString()}
+                      Date of Birth: {formData.dob.toDateString()}
                     </Text>
                   </TouchableOpacity>
                 </Animated.View>

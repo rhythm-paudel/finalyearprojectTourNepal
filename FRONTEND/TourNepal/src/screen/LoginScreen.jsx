@@ -66,7 +66,7 @@ const LoginScreen = () => {
 
   //redirecting to homescreen
   const redirectHomescreen = () => {
-    navigation.navigate("Homescreen");
+    navigation.navigate("Mainstack");
   };
 
   return (
