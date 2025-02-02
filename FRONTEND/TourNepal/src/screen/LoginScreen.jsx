@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 
 const LoginScreen = () => {
@@ -66,7 +66,10 @@ const LoginScreen = () => {
 
   //redirecting to homescreen
   const redirectHomescreen = () => {
-    navigation.navigate("Mainstack");
+
+    navigation.dispatch(
+      StackActions.replace('Mainstack')
+    )
   };
 
   return (

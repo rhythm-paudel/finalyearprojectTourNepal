@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, Animated, Alert, KeyboardAvoidingView } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; //for icons
-import { useNavigation } from '@react-navigation/native'; //for picking date
+import { StackActions,useNavigation } from '@react-navigation/native'; //for picking date
 import * as Animatable from 'react-native-animatable'; //to navigate between screens
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker'; //for selecting images or by photo
@@ -260,7 +260,9 @@ const SignupScreen = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.navButton}
-                    onPress={() => navigation.navigate('Homescreen')}
+                    onPress={() => navigation.dispatch(
+                      StackActions.replace('Mainstack')
+                    )}
                   >
                     <Text style={styles.navButtonText}>Sign Up</Text>
                   </TouchableOpacity>
