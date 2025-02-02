@@ -9,8 +9,6 @@ import {
   ScrollView,
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Header from '../components/Header';
-import BottomNavigation from '../components/BottomNavigation';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 const Profile = () => {
@@ -134,9 +132,6 @@ const Profile = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Header />
-
       {/* Profile Section */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Profile</Text>
@@ -183,9 +178,6 @@ const Profile = () => {
           {renderVisaSection()}
         </View>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </View>
   );
 };

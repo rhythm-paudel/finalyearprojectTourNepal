@@ -6,14 +6,16 @@ import {
     Text,
     View,
     Image,
-    ScrollView,
     TouchableOpacity,
   } from 'react-native';
 
+
+//a thing to note here is if the notificationscreen is not in a stack then navigate.navigate('NotificatioNScreen') wont work
+//the screen has to be on a stack for the screen to redirect
 const Header = () => {
     const navigate = useNavigation();
     const redirectPage = ()=>{
-        navigate.navigate('Notification')
+        navigate.navigate('NotificationScreen')
     }
   return (
     <View style={styles.headerContainer}>

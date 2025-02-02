@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, Linking, ScrollView } from 'react-native';
-import BottomNavigation from '../components/BottomNavigation';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const DescriptionScreen = () => {
@@ -15,15 +14,6 @@ const DescriptionScreen = () => {
     <View style={styles.container}>
       {/* Content */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header Section */}
-        <View style={styles.header}>
-          <Image
-            source={require('../assets/logo.png')} 
-            style={styles.logo}
-          />
-          <Text style={styles.appTitle}>TourNepal</Text>
-          <FontAwesome name="bell" size={24} color="#000" />
-        </View>
 
         {/* Destination Section */}
         <Image
@@ -63,9 +53,6 @@ const DescriptionScreen = () => {
           </View>
         </View>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </View>
   );
 };

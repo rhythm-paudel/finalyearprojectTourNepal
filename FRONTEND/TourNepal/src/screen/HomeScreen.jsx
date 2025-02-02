@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 
-import Header from '../components/Header';
-import BottomNavigation from '../components/BottomNavigation';
 import HomescreenCards from '../components/HomescreenCards';
 
 //currently the home screen is static and header and bottom navigation bar are also on the same .jsx file
@@ -45,9 +43,6 @@ const HomeScreen = () => {
     <View style={styles.container}>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header Section */}
-        <Header />
-
         {/* Banner Section */}
         <Image
           source={require('../assets/placeholder.png')}
@@ -78,8 +73,6 @@ const HomeScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </View>
   );
 };

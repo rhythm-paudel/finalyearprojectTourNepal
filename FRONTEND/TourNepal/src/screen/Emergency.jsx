@@ -7,8 +7,6 @@ import {
   ScrollView,
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Header from '../components/Header';
-import BottomNavigation from '../components/BottomNavigation';
 import ContactsList from '../components/ContactsList';
 
 const Emergency = () => {
@@ -51,9 +49,6 @@ const Emergency = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Header />
-
       {/* Search and Contacts Section */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Emergency Contact List</Text>
@@ -70,9 +65,6 @@ const Emergency = () => {
         {/* Contact Cards */}
         <View style={styles.contactsContainer}>{renderContacts()}</View>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </View>
   );
 };

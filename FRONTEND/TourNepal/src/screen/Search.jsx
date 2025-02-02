@@ -10,8 +10,6 @@ import {
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Header from '../components/Header';
-import BottomNavigation from '../components/BottomNavigation';
 import { useNavigation } from '@react-navigation/native';
 import PlacesList from '../components/PlacesList';
 
@@ -63,9 +61,6 @@ const Search = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Header />
-
       {/* Search Section */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.searchContainer}>
@@ -110,9 +105,6 @@ const Search = () => {
         {/* List of Places */}
         <View style={styles.placesList}>{renderPlaces()}</View>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </View>
   );
 };

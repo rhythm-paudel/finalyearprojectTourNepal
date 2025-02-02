@@ -1,10 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import Header from '../components/Header';
-import BottomNavigation from '../components/BottomNavigation';
+
 import NotificationCards from '../components/NotificationCards';
 
-const NotificationScreen = () => {
+const NotificationScreen = ({isBack}) => {
   const notifications = [ //retreiving list of notifications (static as of now)
     { id: 1, type: 'Alert', message: 'Flood near Thankot area'},
     { id: 2, type: 'Information', message: 'Your profile has been successfully verified'},
@@ -20,17 +19,11 @@ const NotificationScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Header />
-
       {/* Notification Section */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Notifications</Text>
         {renderNotifications()}
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </View>
   );
 };
