@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, Animated } from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, Animated, Alert } from 'react-native';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
+import { AuthContext } from '../context/DataProvider';
 
 const LoginScreen = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -10,7 +11,11 @@ const LoginScreen = () => {
   const [passwordFocus, setPasswordFocus] = useState(false);
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  
+  const { login } = useContext(AuthContext);
+  //states for useremail and password
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   // animation values for input scaling
   const emailScale = useRef(new Animated.Value(1)).current;
   const passwordScale = useRef(new Animated.Value(1)).current;
@@ -59,18 +64,36 @@ const LoginScreen = () => {
     }).start();
   };
 
-   //redirecting to login
+  //redirecting to login
   const redirectRegister = () => {
     navigation.navigate("Signup");
   };
 
   //redirecting to homescreen
-  const redirectHomescreen = () => {
+  const redirectHomescreen = async () => {
 
-    navigation.dispatch(
-      StackActions.replace('Mainstack')
-    )
-  };
+
+    const loggedIn = await login(email, password);
+
+    
+    if (loggedIn?.status===200) {
+      navigation.dispatch(StackActions.replace('Mainstack'));
+    }
+    else if(loggedIn?.status===400){
+      Alert.alert('Login Failed', 'Email and password is required');
+    } 
+    else if(loggedIn?.status===401) {
+      Alert.alert('Login Failed', 'User is not registered');
+    }else if(loggedIn?.status===403) {
+      Alert.alert('Login Failed', 'Incorrect password');
+    }
+    else if(loggedIn===null){
+      Alert.alert('Login Failed', 'Server Error');
+    }
+    else{
+      Alert.alert('Login Failed', 'Invalid credentials' + loggedIn.status);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -84,7 +107,7 @@ const LoginScreen = () => {
             <Image source={require("../assets/logo.png")} style={styles.logo} />
           </Animatable.View>
 
-          <Animatable.Text 
+          <Animatable.Text
             animation="fadeInDown"
             duration={1000}
             style={styles.logoNameContainerText}
@@ -93,7 +116,7 @@ const LoginScreen = () => {
           </Animatable.Text>
 
           <View style={styles.fieldsContainer}>
-            <Animatable.Text 
+            <Animatable.Text
               animation="fadeInUp"
               duration={800}
               style={styles.signInText}
@@ -101,12 +124,12 @@ const LoginScreen = () => {
               Sign in to your account
             </Animatable.Text>
 
-            <Animated.View 
+            <Animated.View
               style={[
-                styles.inputContainer, 
-                { 
+                styles.inputContainer,
+                {
                   borderColor: emailFocus ? '#3498db' : '#ccc',
-                  transform: [{ scale: emailScale }] 
+                  transform: [{ scale: emailScale }]
                 }
               ]}
             >
@@ -114,6 +137,8 @@ const LoginScreen = () => {
               <TextInput
                 style={styles.inputField}
                 placeholder="Email"
+                value={email}
+                onChangeText={(text) => setEmail(text)}
                 placeholderTextColor="#888"
                 keyboardType="email-address"
                 onFocus={handleEmailFocus}
@@ -121,12 +146,12 @@ const LoginScreen = () => {
               />
             </Animated.View>
 
-            <Animated.View 
+            <Animated.View
               style={[
-                styles.inputContainer, 
-                { 
+                styles.inputContainer,
+                {
                   borderColor: passwordFocus ? '#3498db' : '#ccc',
-                  transform: [{ scale: passwordScale }] 
+                  transform: [{ scale: passwordScale }]
                 }
               ]}
             >
@@ -134,6 +159,8 @@ const LoginScreen = () => {
               <TextInput
                 style={styles.inputField}
                 placeholder="Password"
+                value={password}
+                onChangeText={(text) => setPassword(text)}
                 placeholderTextColor="#888"
                 secureTextEntry={!passwordVisible}
                 onFocus={handlePasswordFocus}
@@ -148,14 +175,14 @@ const LoginScreen = () => {
               </TouchableOpacity>
             </Animated.View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.loginButton}
               onPress={redirectHomescreen}
             >
               <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
 
-            <Animatable.View 
+            <Animatable.View
               animation="fadeInUp"
               duration={800}
               style={styles.signupButton}
@@ -170,8 +197,8 @@ const LoginScreen = () => {
           </View>
         </Animated.View>
 
-        <Animatable.Image 
-          source={require("../assets/mountain.png")} 
+        <Animatable.Image
+          source={require("../assets/mountain.png")}
           style={styles.mountainLogo}
           animation="fadeInUp"
           duration={1200}

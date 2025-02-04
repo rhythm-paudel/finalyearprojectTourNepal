@@ -55,7 +55,7 @@ const handleLogin = async (req, res) => {
     }
     else{
       return res
-        .status(400)
+        .status(403)
         .json({ message: "Wrong Password" });
     }
   }catch(err){
