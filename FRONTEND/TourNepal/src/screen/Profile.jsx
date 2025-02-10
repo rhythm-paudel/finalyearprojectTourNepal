@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { clearToken } from '../utils/TokenStorage';
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({ //logged in user information (static as of now)
@@ -32,6 +33,11 @@ const Profile = () => {
     setIsEditingEmail(false);
     Alert.alert('Email Updated', 'Your email has been updated successfully.');
   };
+
+  //handling logout of the user
+  const handleLogout =async ()=>{
+  
+  }
 
   //for letting the user decide to choose between camera and gallery while uploading documents
   const showImagePickerAlert = (field) => {
@@ -177,6 +183,10 @@ const Profile = () => {
           </TouchableOpacity>
           {renderVisaSection()}
         </View>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -306,5 +316,16 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },logoutButton: {
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20,
   },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  }
 });
