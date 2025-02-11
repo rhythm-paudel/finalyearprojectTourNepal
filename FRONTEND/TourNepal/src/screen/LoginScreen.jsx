@@ -4,7 +4,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 import { AuthContext } from '../context/DataProvider';
-import { getToken } from '../utils/TokenStorage';
+
 
 
 const LoginScreen = () => {
@@ -78,7 +78,7 @@ const LoginScreen = () => {
     const loggedIn = await login(email, password);
     
     if (loggedIn?.status===200) {
- 
+      
       navigation.dispatch(StackActions.replace('Mainstack'));
       
     }

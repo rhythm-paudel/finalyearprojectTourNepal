@@ -41,7 +41,7 @@ const handleLogin = async (req, res) => {
         
       },
         process.env.REFRESH_SECRET_TOKEN,
-        {expiresIn:'1d'}
+        {expiresIn:'7d'}
       );
 
       //SAVING REFRESH TOKEN OF THE USER IN DB

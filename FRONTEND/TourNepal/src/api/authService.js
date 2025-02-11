@@ -20,3 +20,19 @@ export const loginUser = async (email,password)=>{
         return null;
     }
 }
+
+
+//function to check if the current user token has been expired or not
+export const checkUserToken = async (encryptedToken)=>{
+    const AUTH_CHECK = '/verifyJWT'
+
+    try{
+        const response = await baseUrl.post(AUTH_CHECK,{},{
+            headers:{'Authorization':`Bearer ${encryptedToken}`}
+        })
+
+        return response;
+    }catch(e){
+        return null;
+    }
+}

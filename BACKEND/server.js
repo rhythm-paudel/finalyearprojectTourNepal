@@ -24,8 +24,11 @@ app.use('/emergencycontacts', require('./routes/emergencyContacts'));
 app.use('/location', require('./routes/api/location'));
 
 
+//for verification of refresh token
+app.use('/verifyJWT',require('./routes/verifyJWT'))
+
 //using verification of user before letting them view screens
-app.use(verifyRefreshToken)
+app.use(verifyRefreshToken)//this is named refreshToken, this is used for verification of access token
 app.use('/userDetail', require('./routes/api/userDetail'));
 
 // app.use('/destinations', require('./routes/api/destinations'));

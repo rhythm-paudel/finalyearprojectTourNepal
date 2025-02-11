@@ -11,7 +11,7 @@ import { getToken } from './src/utils/TokenStorage';
 
 //importing stacks
 import RootNavigator from './src/navigations/RootNavigator';
-import AutheticationProvider from './src/context/AutheticationProvider';
+import AuthenticationProvider from './src/context/AuthenticationProvider';
 
 
 const App = () => {
@@ -19,11 +19,13 @@ const App = () => {
   return (
 
     <PaperProvider>
+      <AuthenticationProvider>
       <DataProvider>
-        <AutheticationProvider>
+        
         <RootNavigator />
-        </AutheticationProvider>
-      </DataProvider>
+        </DataProvider>
+        </AuthenticationProvider>
+      
     </PaperProvider>
 
   )

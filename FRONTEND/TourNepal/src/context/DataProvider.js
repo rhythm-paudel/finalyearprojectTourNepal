@@ -1,5 +1,8 @@
-import { createContext, useState } from "react";
+import { createContext, useContext } from "react";
 import { loginUser } from "../api/authService";
+import { decodedToken } from '../utils/decodeToken';
+//importing context for setting user
+import { AuthenticationProviderContext } from "./AuthenticationProvider";
 
 //importing utils for token
 import { storeTokens } from "../utils/TokenStorage";
@@ -7,18 +10,21 @@ import { storeTokens } from "../utils/TokenStorage";
 export const AuthContext = createContext();
 
 export const DataProvider = ({children})=>{
-    const [currUser,setCurrUser] = useState();
+  
 
+    const {setCurrUser} = useContext(AuthenticationProviderContext) //using context from authenticationprovider for setting current user
     const login = async (email,password)=>{
         const userData = await loginUser(email,password)
-        if(userData && userData.data.accessToken){
+        if(userData && userData?.data.accessToken){
             //storing tokens securely
             await storeTokens(userData.data.accessToken,userData.data.encryptedToken)
+            let accessToken = decodedToken(userData.data.accessToken)
+            setCurrUser(accessToken)
         }
         return userData;
     }
     return(
-        <AuthContext.Provider value={{currUser,login}}>
+        <AuthContext.Provider value={{login}}>
 
             {children}
 

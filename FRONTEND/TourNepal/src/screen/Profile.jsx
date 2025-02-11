@@ -36,7 +36,7 @@ const Profile = () => {
 
   //handling logout of the user
   const handleLogout =async ()=>{
-  
+    clearToken()
   }
 
   //for letting the user decide to choose between camera and gallery while uploading documents

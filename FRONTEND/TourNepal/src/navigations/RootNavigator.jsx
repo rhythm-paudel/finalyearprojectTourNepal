@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native'
 
 import AuthStack from './AuthStack';
 import MainStack from './MainStack';
-import { AutheticationProviderContext } from '../context/AutheticationProvider';
+import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
 
 //react-native imports
 import { ActivityIndicator } from 'react-native-paper';
@@ -15,13 +15,13 @@ const RootStack = createNativeStackNavigator(); //creating stack
 
 //for only stacking login and signup screen, when signed up or logged in this will be removed from the stack
 export default function RootNavigator() {
-    const { isAuthenticated, isLoading } = useContext(AutheticationProviderContext)
+    const { isAuthenticated, isLoading } = useContext(AuthenticationProviderContext)
 
     if (isLoading) { //spinning loading animation using activity indicator from react-native
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#3498db" />
-                <Text>Checking Authentication...</Text>
+                <Text>Tour Nepal...</Text>
             </View>
         );
     }
