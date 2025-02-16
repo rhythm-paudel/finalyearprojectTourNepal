@@ -36,3 +36,27 @@ export const checkUserToken = async (encryptedToken)=>{
         return null;
     }
 }
+
+
+//function to send new user data to backedn
+export const registerUser = async (formData)=>{
+    const REGISTER_URL = '/register'
+
+    try{
+        //formdata is not sent directly because backend expects different naming
+        const response = await baseUrl.post(REGISTER_URL,JSON.stringify({email:formData.email,password:formData.password,
+                                                                         firstname:formData.firstname, lastname:formData.lastname,
+                                                                         dateOfBirth:formData.dob,visaStamp:formData.visa,passportCopy:
+                                                                         formData.passport
+        }),{
+            headers: { 'Content-Type': 'application/json' },
+                withCredentials: true
+        })
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response;
+        }
+        return null;
+    }
+}

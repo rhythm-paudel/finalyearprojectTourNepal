@@ -1,15 +1,40 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, Animated, Alert, KeyboardAvoidingView } from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; //for icons
 import { StackActions,useNavigation } from '@react-navigation/native'; //for picking date
 import * as Animatable from 'react-native-animatable'; //to navigate between screens
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker'; //for selecting images or by photo
 
+import axios from 'axios';
+
+
+
+import ErrMessage from '../components/ErrMessage';
+import { AuthContext } from '../context/DataProvider';
+
+import {UPLOAD_PRESET, CLOUD_NAME } from '@env';
+
+
+
 const SignupScreen = () => {
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [errMessage,setErrMessage] = useState({
+    firstname:'',
+    lastname:'',
+    email:'',
+    dob:'',
+    password:'',
+    confirmPassword:'',
+    passport:'',
+    visa:''
+  });
+  
   //setting up form data to keep the data consistent
   const [formData, setFormData] = useState({
+    firstname:'',
+    lastname:'',
     email: '',
     dob: new Date(),
     password: '',
@@ -24,12 +49,18 @@ const SignupScreen = () => {
   //for toggling between visibility of password
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  const [inputFocus, setInputFocus] = useState({ email: false, password: false, confirmPassword: false });
+  const [inputFocus, setInputFocus] = useState({ firstname: false, lastname: false, email: false, password: false, confirmPassword: false });
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const emailScale = useRef(new Animated.Value(1)).current;
   const passwordScale = useRef(new Animated.Value(1)).current;
   const confirmPasswordScale = useRef(new Animated.Value(1)).current;
+  const firstnameScale = useRef(new Animated.Value(1)).current;
+  const lastnameScale = useRef(new Animated.Value(1)).current;
+
+  //useContext
+  const {register} = useContext(AuthContext);
+ 
 
   //for animating the screen when first loaded
   useEffect(() => {
@@ -39,6 +70,47 @@ const SignupScreen = () => {
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
+
+  //field validity before moving to the next page
+  const checkField= (pageNumber)=>{
+    let isValid = true; //valid var declaration to move on to the next page
+
+    const newErrors = {...errMessage};
+
+    if (pageNumber === 1) {
+      newErrors.firstname = !formData.firstname ? 'First Name is required' : '';
+      newErrors.lastname = !formData.lastname ? 'Last Name is required' : '';
+      isValid = !newErrors.firstname && !newErrors.lastname;
+    }
+
+    if(pageNumber===2){
+      newErrors.email = !formData.email ? 'Email is required' : !/\S+@\S+\.\S+/.test(formData.email) ? 'Invalid Email Format' : '';
+      newErrors.dob = !formData.dob ? 'Date of Birth is required' : calculateAge(formData.dob)<16? 'User Must be at least 16 years old':'';
+      isValid = !newErrors.email && !newErrors.dob;
+    }
+
+    if(pageNumber===3){
+      newErrors.password = !formData.password?'Password is required' : formData.password.length < 8 ? 'Minimum 8 characters are required':'';
+      newErrors.confirmPassword = formData.password !== formData.confirmPassword ? 'Passwords do not match' :'';
+      isValid = !newErrors.password && !newErrors.confirmPassword;
+    }
+
+    if(pageNumber===4){
+      newErrors.passport = !formData.passport ? 'Passport is required' : '';
+      newErrors.visa = !formData.visa ? 'Visa is required' : '';
+      isValid = !newErrors.passport && !newErrors.visa;
+    }
+
+    setErrMessage(newErrors);
+    return isValid;
+  }
+
+  //to check age of the user
+
+  const calculateAge = (birthDate) => {
+    const diff = Date.now() - birthDate.getTime();
+      return Math.abs(new Date(diff).getUTCFullYear() - 1970);
+    };
 
   //to focus on the input fields when clicked
   const handleFocus = (field, scaleRef) => {
@@ -80,18 +152,92 @@ const SignupScreen = () => {
 
   const handleImagePicker = (type, field) => {
     //defining the nature of media
-    const options = { mediaType: 'photo', includeBase64: true };
+    const options = { mediaType: 'photo', includeBase64: false };
 
     //callback function to perform what after user chooses photo or clicks picture
     const callback = (response) => {
-      if (response.assets?.[0]?.base64) {
-        setFormData(prev => ({ ...prev, [field]: response.assets[0].base64 })); //getting the base64 value of image
+      if (response.assets?.[0]?.uri) {
+        setFormData(prev => ({ ...prev, [field]: response.assets[0] })); //getting the base64 value of image
         setUploadedStatus(prev => ({ ...prev, [field]: true })); //setting the form data with uploaded image
+
       }
     };
     type === 'camera' ? launchCamera(options, callback) : launchImageLibrary(options, callback);
   };
 
+  //function to create form data to uploading passport or visa stamp
+  const formDataToSave = (copyType)=>{
+    const toSave = new FormData();
+    if(copyType==='passport'){
+      const name = `${formData.firstname}-${formData.lastname}-passport`;
+    
+      
+      toSave.append('file',{
+        uri: formData.passport.uri,
+        type:formData.passport.type || 'image/jpeg',
+        name: name || 'passport'
+
+      })
+    }else if(copyType==='visa'){
+      const name = `${formData.firstname}-${formData.lastname}-visa`;
+
+      toSave.append('file',{
+        uri: formData.visa.uri,
+        type:formData.visa.type || 'image/jpeg',
+        name:name || 'visa'
+
+      })
+    }
+    toSave.append('upload_preset',UPLOAD_PRESET);
+    return toSave;
+   
+  }
+
+  //action to perform after signup button is pressed
+  const handleRegister =async ()=>{
+    console.log(CLOUD_NAME)
+    const passportToSave = formDataToSave('passport');
+    const visaToSave = formDataToSave('visa');
+    try{
+      
+      const passportResponse = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+                                         passportToSave,
+                                         {headers: {'Content-Type':'multipart/form-data'}}
+      )
+      const visaResponse = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+                                             visaToSave,
+                                             {headers:{'Content-Type':'multipart/form-data'}}
+      )
+
+      //if the passport and visa is securely uploaded to cloudinary
+      if(passportResponse?.data.secure_url&&visaResponse?.data.secure_url){
+        //a copy of form data is created to update the passport and visa fields as using set method of useState is async
+        const updatedData = {
+          ...formData,
+          passport: passportResponse.data.secure_url,
+          visa: visaResponse.data.secure_url,
+        };
+
+         const registered = await register(updatedData);
+
+         //messages to be shown after registration
+         if(registered?.status===201){
+          Alert.alert("User created","The user was successfully created. Please login to continue")
+          navigation.navigate("Login")
+        }else if(registered===null){
+
+          Alert.alert("Registration Error","File could not be uploaded")
+        }else if(registered?.status===409){
+          Alert.alert("Existing user",`Please login with different email`)
+        }else if(registered?.status===500){
+          Alert.alert("Registration Error","Sorry the server is busy, please try again later")
+        }
+      }
+    }catch(e){
+      console.log('error')
+    }      
+    
+  }
 
 
   return (
@@ -107,7 +253,53 @@ const SignupScreen = () => {
           </Animatable.Text>
 
           <KeyboardAvoidingView style={styles.fieldsContainer} behavior="padding">
-            {currentPage === 1 && (
+          {currentPage === 1 && (
+              <>
+                <Animatable.Text animation="fadeInUp" duration={800} style={styles.signInText}>
+                  Enter your Name
+                </Animatable.Text>
+                {/* First Name Field */}
+                <Animated.View style={[
+                  styles.inputContainer,
+                  { borderColor: inputFocus.firstname ? '#3498db' : '#ccc', transform: [{ scale: firstnameScale }] }
+                ]}>
+                  <FontAwesome name="user" size={20} color={inputFocus.firstname ? '#3498db' : 'grey'} />
+                  <TextInput
+                    value={formData.firstname}
+                    style={styles.inputField}
+                    placeholder="First Name"
+                    placeholderTextColor="#888"
+                    onFocus={() => handleFocus('firstname', firstnameScale)}
+                    onBlur={() => handleBlur('firstname', firstnameScale)}
+                    onChangeText={(text) => setFormData({ ...formData, firstname: text })}
+                  />
+                </Animated.View>
+                <ErrMessage message={errMessage.firstname} />
+
+                {/* Last Name Field */}
+                <Animated.View style={[
+                  styles.inputContainer,
+                  { borderColor: inputFocus.lastname ? '#3498db' : '#ccc', transform: [{ scale: lastnameScale }] }
+                ]}>
+                  <FontAwesome name="user" size={20} color={inputFocus.lastname ? '#3498db' : 'grey'} />
+                  <TextInput
+                    value={formData.lastname}
+                    style={styles.inputField}
+                    placeholder="Last Name"
+                    placeholderTextColor="#888"
+                    onFocus={() => handleFocus('lastname', lastnameScale)}
+                    onBlur={() => handleBlur('lastname', lastnameScale)}
+                    onChangeText={(text) => setFormData({ ...formData, lastname: text })}
+                  />
+                </Animated.View>
+                <ErrMessage message={errMessage.lastname} />
+
+                <TouchableOpacity style={styles.loginButton} onPress={() => { if (checkField(1)) setCurrentPage(2) }}>
+                  <Text style={styles.loginButtonText}>Next</Text>
+                </TouchableOpacity>
+              </>
+            )}
+            {currentPage === 2 && (
               <>
                 <Animatable.Text animation="fadeInUp" duration={800} style={styles.signInText}>
                   Create your account
@@ -129,7 +321,7 @@ const SignupScreen = () => {
                     onChangeText={(text) => setFormData({ ...formData, email: text })}
                   />
                 </Animated.View>
-
+                <ErrMessage message={errMessage.email}/>
                 <Animated.View style={[
                   styles.inputContainer,
                   { borderColor: '#ccc', transform: [{ scale: 1 }] }
@@ -144,7 +336,7 @@ const SignupScreen = () => {
                     </Text>
                   </TouchableOpacity>
                 </Animated.View>
-
+                <ErrMessage message={errMessage.dob}/>
                 {showDatePicker && (
                   <DateTimePicker
                     value={formData.dob}
@@ -154,13 +346,18 @@ const SignupScreen = () => {
                   />
                 )}
 
-                <TouchableOpacity style={styles.loginButton} onPress={() => setCurrentPage(2)}>
-                  <Text style={styles.loginButtonText}>Next</Text>
-                </TouchableOpacity>
+                <View style={styles.buttonGroup}>
+                  <TouchableOpacity style={[styles.navButton, { marginRight: 10 }]} onPress={() => setCurrentPage(1)}>
+                    <Text style={styles.navButtonText}>Previous</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.navButton} onPress={() => {if(checkField(2)) setCurrentPage(3)}}>
+                    <Text style={styles.navButtonText}>Next</Text>
+                  </TouchableOpacity>
+                </View>
               </>
             )}
 
-            {currentPage === 2 && (
+            {currentPage === 3 && (
               <>
                 <Animatable.Text animation="fadeInUp" duration={800} style={styles.signInText}>
                   Secure your account
@@ -189,7 +386,7 @@ const SignupScreen = () => {
                     />
                   </TouchableOpacity>
                 </Animated.View>
-
+                <ErrMessage message={errMessage.password}/>
                 <Animated.View style={[
                   styles.inputContainer,
                   { borderColor: inputFocus.confirmPassword ? '#3498db' : '#ccc', transform: [{ scale: confirmPasswordScale }] }
@@ -213,19 +410,19 @@ const SignupScreen = () => {
                     />
                   </TouchableOpacity>
                 </Animated.View>
-
+                <ErrMessage message={errMessage.confirmPassword}/>
                 <View style={styles.buttonGroup}>
-                  <TouchableOpacity style={[styles.navButton, { marginRight: 10 }]} onPress={() => setCurrentPage(1)}>
+                  <TouchableOpacity style={[styles.navButton, { marginRight: 10 }]} onPress={() => setCurrentPage(2)}>
                     <Text style={styles.navButtonText}>Previous</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.navButton} onPress={() => setCurrentPage(3)}>
+                  <TouchableOpacity style={styles.navButton} onPress={() => {if(checkField(3)) setCurrentPage(4)}}>
                     <Text style={styles.navButtonText}>Next</Text>
                   </TouchableOpacity>
                 </View>
               </>
             )}
 
-            {currentPage === 3 && (
+            {currentPage === 4 && (
               <>
                 <Animatable.Text animation="fadeInUp" duration={800} style={styles.signInText}>
                   Upload Documents
@@ -240,7 +437,7 @@ const SignupScreen = () => {
                   )}
                   <Text style={styles.uploadButtonText}>Upload Passport</Text>
                 </TouchableOpacity>
-
+                <ErrMessage message={errMessage.passport}/>
                 <TouchableOpacity
                   style={[styles.uploadButton, uploadedStatus.visa && styles.uploadButtonWithCheck]}
                   onPress={() => showImagePickerAlert('visa')}
@@ -250,7 +447,7 @@ const SignupScreen = () => {
                   )}
                   <Text style={styles.uploadButtonText}>Upload Visa</Text>
                 </TouchableOpacity>
-
+                <ErrMessage message={errMessage.visa}/>
                 <View style={styles.buttonGroup}>
                   <TouchableOpacity
                     style={[styles.navButton, { marginRight: 10 }]}
@@ -260,9 +457,7 @@ const SignupScreen = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.navButton}
-                    onPress={() => navigation.dispatch(
-                      StackActions.replace('Mainstack')
-                    )}
+                    onPress={() =>{if(checkField(3)) handleRegister()}}
                   >
                     <Text style={styles.navButtonText}>Sign Up</Text>
                   </TouchableOpacity>
