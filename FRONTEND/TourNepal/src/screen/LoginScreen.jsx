@@ -5,10 +5,13 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 import { AuthContext } from '../context/DataProvider';
 
+//loading screen
+import LoadingAnimation from '../components/LoadingAnimation';
 
 
 const LoginScreen = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [emailFocus, setEmailFocus] = useState(false);
   const [passwordFocus, setPasswordFocus] = useState(false);
   const navigation = useNavigation();
@@ -74,7 +77,7 @@ const LoginScreen = () => {
   //redirecting to homescreen
   const redirectHomescreen = async () => {
 
-
+    setLoading(true);
     const loggedIn = await login(email, password);
     
     if (loggedIn?.status===200) {
@@ -96,6 +99,10 @@ const LoginScreen = () => {
     else{
       Alert.alert('Login Failed', 'Invalid credentials' + loggedIn.status);
     }
+  }
+
+  if (loading) {
+    return <LoadingAnimation />;
   }
 
   return (

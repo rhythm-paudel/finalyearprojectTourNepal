@@ -9,6 +9,7 @@ import { AuthenticationProviderContext } from '../context/AuthenticationProvider
 //react-native imports
 import { ActivityIndicator } from 'react-native-paper';
 import { StyleSheet,View,Text } from 'react-native';
+import LoadingAnimation from '../components/LoadingAnimation';
 
 const RootStack = createNativeStackNavigator(); //creating stack
 
@@ -17,12 +18,9 @@ const RootStack = createNativeStackNavigator(); //creating stack
 export default function RootNavigator() {
     const { isAuthenticated, isLoading } = useContext(AuthenticationProviderContext)
 
-    if (isLoading) { //spinning loading animation using activity indicator from react-native
+    if (isLoading) { //spinning loading animation using lottie animation
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#3498db" />
-                <Text>Tour Nepal...</Text>
-            </View>
+           <LoadingAnimation/>
         );
     }
 
@@ -44,9 +42,5 @@ export default function RootNavigator() {
 }
 
 const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+    
 });

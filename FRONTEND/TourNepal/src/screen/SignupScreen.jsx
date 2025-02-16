@@ -8,7 +8,8 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker'; //
 
 import axios from 'axios';
 
-
+//loading animation import
+import LoadingAnimation from '../components/LoadingAnimation';
 
 import ErrMessage from '../components/ErrMessage';
 import { AuthContext } from '../context/DataProvider';
@@ -46,9 +47,10 @@ const SignupScreen = () => {
   const [uploadedStatus, setUploadedStatus] = useState({ passport: false, visa: false });
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  //for toggling between visibility of password
-  const [passwordVisible, setPasswordVisible] = useState(false);
+  
+  const [passwordVisible, setPasswordVisible] = useState(false); //for toggling between visibility of password
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [inputFocus, setInputFocus] = useState({ firstname: false, lastname: false, email: false, password: false, confirmPassword: false });
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -195,7 +197,7 @@ const SignupScreen = () => {
 
   //action to perform after signup button is pressed
   const handleRegister =async ()=>{
-    console.log(CLOUD_NAME)
+
     const passportToSave = formDataToSave('passport');
     const visaToSave = formDataToSave('visa');
     try{
@@ -204,11 +206,12 @@ const SignupScreen = () => {
                                          passportToSave,
                                          {headers: {'Content-Type':'multipart/form-data'}}
       )
+      setIsLoading(true);
       const visaResponse = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
                                              visaToSave,
                                              {headers:{'Content-Type':'multipart/form-data'}}
       )
-
+      setIsLoading(true);
       //if the passport and visa is securely uploaded to cloudinary
       if(passportResponse?.data.secure_url&&visaResponse?.data.secure_url){
         //a copy of form data is created to update the passport and visa fields as using set method of useState is async
@@ -217,19 +220,27 @@ const SignupScreen = () => {
           passport: passportResponse.data.secure_url,
           visa: visaResponse.data.secure_url,
         };
-
+         setIsLoading(true);
          const registered = await register(updatedData);
-
+         
          //messages to be shown after registration
          if(registered?.status===201){
+          setIsLoading(false);
           Alert.alert("User created","The user was successfully created. Please login to continue")
           navigation.navigate("Login")
         }else if(registered===null){
-
+          setIsLoading(false);
           Alert.alert("Registration Error","File could not be uploaded")
+          setIsLoading(false);
         }else if(registered?.status===409){
+          setIsLoading(false);
           Alert.alert("Existing user",`Please login with different email`)
+          setIsLoading(false);
         }else if(registered?.status===500){
+          setIsLoading(false);
+          Alert.alert("Registration Error","Sorry the server is busy, please try again later")        
+        }else{
+          setIsLoading(false);
           Alert.alert("Registration Error","Sorry the server is busy, please try again later")
         }
       }
@@ -238,7 +249,9 @@ const SignupScreen = () => {
     }      
     
   }
-
+  if(isLoading){
+    return <LoadingAnimation message="Registering User"/>
+  }
 
   return (
     <View style={styles.container}>
