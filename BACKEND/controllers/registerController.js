@@ -21,7 +21,9 @@ const handleRegister = async (req, res) => {
             "lastname":lastname,
             "dateOfBirth": dateOfBirth,
             "visaStamp": visaStamp,
-            "passportCopy":passportCopy
+            "passportCopy":passportCopy,
+            "visaVerified":false,
+            "passportVerified":false
             
         });
 
@@ -30,6 +32,7 @@ const handleRegister = async (req, res) => {
         res.status(201).json({ 'success': `New user ${firstname} created!` });
     } catch (err) {
         res.status(500).json({ 'message': err.message });
+        console.log(err.message)
     }
 }
 

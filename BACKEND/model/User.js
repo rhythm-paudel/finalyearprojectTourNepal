@@ -30,7 +30,14 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-       
+    passportVerified:{
+        type: Boolean,
+        require: true
+    },
+    visaVerified:{
+        type: Boolean,
+        require: true
+    }     
     // roles: {
     //     User: {
     //         type: Number,
@@ -40,8 +47,6 @@ const userSchema = new Schema({
     //     Admin: Number
     // },
 
-
-    refreshToken: String
 });
 
 module.exports = mongoose.model('Users', userSchema);
