@@ -20,9 +20,9 @@ const App = () => {
 
     <PaperProvider>
       <AuthenticationProvider>
-      <DataProvider>
+        <DataProvider>
         
-        <RootNavigator />
+          <RootNavigator />
         </DataProvider>
         </AuthenticationProvider>
       

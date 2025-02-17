@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,20 +10,47 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { clearToken } from '../utils/TokenStorage';
+import { clearToken, getToken } from '../utils/TokenStorage';
+import baseUrl from '../api/baseUrl';
+import { fetchUserDetails } from '../api/authService';
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({ //logged in user information (static as of now)
-    name: 'John Doe',
-    dob: '1995-05-20',
-    email: 'john.doe@example.com',
-    visaStatus: 'rejected', // Options: 'not_verified', 'pending', 'rejected', 'verified'
+    name: '',
+    dob: '',
+    email: '',
+    visaStatus: 'not_verified', // Options: 'not_verified', 'pending', 'rejected', 'verified'
     passport: null,
     visa: null,
   });
-
+  const [loading, setLoading] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false); //for making the field editable
   const [uploadedStatus, setUploadedStatus] = useState({ passport: false, visa: false });
+
+
+
+  //use effect to fetch the user data from the server
+  useEffect(() => {
+    let token;
+    
+    
+    setLoading(true);
+     const fetchUserData = async () => {
+       token =await getToken();
+       const response = await fetchUserDetails(token.accessToken);
+       console.log(response.data)
+       if(response.status === 200){
+          const data = {name:`${response.data.firstname} ${response.data.lastname}`,dob:new Date(response.data.dob).toLocaleDateString(),
+            email:response.data.email,visaStatus:response.data.verificationStatus,
+            }
+          setProfileData(data);
+       }
+       console.log(response.status);
+       
+    }
+    fetchUserData();
+    // setLoading(false);
+  }, []);
 
   const handleEmailChange = (text) => {//when email changed updating the current user
     setProfileData({ ...profileData, email: text });

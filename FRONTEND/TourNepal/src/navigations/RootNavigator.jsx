@@ -7,8 +7,7 @@ import MainStack from './MainStack';
 import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
 
 //react-native imports
-import { ActivityIndicator } from 'react-native-paper';
-import { StyleSheet,View,Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 import LoadingAnimation from '../components/LoadingAnimation';
 
 const RootStack = createNativeStackNavigator(); //creating stack

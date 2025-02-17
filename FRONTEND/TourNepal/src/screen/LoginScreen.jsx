@@ -81,22 +81,27 @@ const LoginScreen = () => {
     const loggedIn = await login(email, password);
     
     if (loggedIn?.status===200) {
-      
+      setLoading(false);
       navigation.dispatch(StackActions.replace('Mainstack'));
       
     }
     else if(loggedIn?.status===400){
+      setLoading(false);
       Alert.alert('Login Failed', 'Email and password is required');
     } 
     else if(loggedIn?.status===401) {
+      setLoading(false);
       Alert.alert('Login Failed', 'User is not registered');
     }else if(loggedIn?.status===403) {
+      setLoading(false);
       Alert.alert('Login Failed', 'Incorrect password');
     }
     else if(loggedIn===null){
+      setLoading(false);
       Alert.alert('Login Failed', 'Server Error');
     }
     else{
+      setLoading(false);
       Alert.alert('Login Failed', 'Invalid credentials' + loggedIn.status);
     }
   }
