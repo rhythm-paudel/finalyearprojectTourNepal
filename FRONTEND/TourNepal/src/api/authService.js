@@ -63,6 +63,7 @@ export const registerUser = async (formData)=>{
 
 //function for feteching userDetails
 export const fetchUserDetails = async (accessToken)=>{
+    
     const USER_DETAILS = '/userDetail'
 
     try{
@@ -77,3 +78,24 @@ export const fetchUserDetails = async (accessToken)=>{
         return null
     }
 }
+
+
+//function for getting new access token
+export const refreshToken = async (refreshToken)=>{
+    const REFRESH_TOKEN = '/refresh'
+
+    try{
+        const response = await baseUrl.post(REFRESH_TOKEN,JSON.stringify({encryptedToken:refreshToken}),{
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials:true
+        })
+        return response;
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
+

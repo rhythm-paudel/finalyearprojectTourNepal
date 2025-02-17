@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View,ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, ActivityIndicator } from 'react-native'
 
-import React,{useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { PaperProvider } from 'react-native-paper';
 
@@ -12,7 +12,7 @@ import { getToken } from './src/utils/TokenStorage';
 //importing stacks
 import RootNavigator from './src/navigations/RootNavigator';
 import AuthenticationProvider from './src/context/AuthenticationProvider';
-
+import { AuthServices } from './src/context/AuthServices';
 
 const App = () => {
 
@@ -21,11 +21,12 @@ const App = () => {
     <PaperProvider>
       <AuthenticationProvider>
         <DataProvider>
-        
-          <RootNavigator />
+          <AuthServices>
+            <RootNavigator />
+          </AuthServices>
         </DataProvider>
-        </AuthenticationProvider>
-      
+      </AuthenticationProvider>
+
     </PaperProvider>
 
   )
