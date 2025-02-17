@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect,useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,12 +10,12 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { clearToken, getToken } from '../utils/TokenStorage';
-import baseUrl from '../api/baseUrl';
-import { fetchUserDetails } from '../api/authService';
+import { clearToken} from '../utils/TokenStorage';
+import { AuthCheck } from '../context/AuthServices';
+import { useNavigation } from '@react-navigation/native';
 
 const Profile = () => {
-  const [profileData, setProfileData] = useState({ //logged in user information (static as of now)
+  const [profileData, setProfileData] = useState({ //setting initial state of the data
     name: '',
     dob: '',
     email: '',
@@ -26,30 +26,35 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false); //for making the field editable
   const [uploadedStatus, setUploadedStatus] = useState({ passport: false, visa: false });
-
-
+  const {getUserDetail} = useContext(AuthCheck);
+  const navigation = useNavigation();
 
   //use effect to fetch the user data from the server
   useEffect(() => {
-    let token;
     
     
-    setLoading(true);
+    
+     setLoading(true); //for loading screen
      const fetchUserData = async () => {
-       token =await getToken();
-       const response = await fetchUserDetails(token.accessToken);
-       console.log(response.data)
-       if(response.status === 200){
-          const data = {name:`${response.data.firstname} ${response.data.lastname}`,dob:new Date(response.data.dob).toLocaleDateString(),
-            email:response.data.email,visaStatus:response.data.verificationStatus,
-            }
-          setProfileData(data);
-       }
-       console.log(response.status);
+       const response = await getUserDetail()
+        if(response.status===200){ //if the user access token is valid setting the user data
+          const dob = new Date(response.data.dob).toLocaleDateString();
+          const userData = {
+            name: response.data.firstname + ' ' + response.data.lastname,
+            dob: dob,
+            email: response.data.email,
+            visaStatus: response.data.verificationStatus,
+          }
+          setProfileData(userData)
+        }else {//if the access and refresh token is expired
+          navigation.navigate('Auth')
+        }
+        
+      
        
     }
     fetchUserData();
-    // setLoading(false);
+    setLoading(false);
   }, []);
 
   const handleEmailChange = (text) => {//when email changed updating the current user
@@ -64,6 +69,7 @@ const Profile = () => {
   //handling logout of the user
   const handleLogout =async ()=>{
     clearToken()
+    navigation.navigate('Auth')
   }
 
   //for letting the user decide to choose between camera and gallery while uploading documents

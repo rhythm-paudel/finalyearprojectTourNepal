@@ -21,6 +21,7 @@ export const getToken = async () => {
     });
     if (authTokens) {
       return JSON.parse(authTokens.password);
+      
     }
     return "1st";
   } catch (e) {
