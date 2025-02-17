@@ -60,3 +60,20 @@ export const registerUser = async (formData)=>{
         return null;
     }
 }
+
+//function for feteching userDetails
+export const fetchUserDetails = async (accessToken)=>{
+    const USER_DETAILS = '/userDetail'
+
+    try{
+        const response = await baseUrl.get(USER_DETAILS,{
+            headers:{'Authorization':`Bearer ${accessToken}`}
+        })
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}

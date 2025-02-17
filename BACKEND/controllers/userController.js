@@ -1,10 +1,32 @@
 const bcrypt = require('bcrypt')
+const User = require('../model/User');
+const jwt = require("jsonwebtoken");
 
-const getUserDetails = (req,res)=>{
-   
-    const { email,firstname,lastname,dateOfBirth } = req;
+const getUserDetails =async (req,res)=>{
+    try{
+               
+                
+                const { email } = req;
+           
+                const userDB = await User.findOne({ email }).exec();
+        
+                if(!userDB) return res.sendStatus(404); //user not found
+          
+                
+                res.status(200).json({email:userDB.email, firstname:userDB.firstname, 
+                    lastname:userDB.lastname, dob:userDB.dateOfBirth, 
+                    verificationStatus:userDB.verificationStatus}
+                );
+         
+                
+           
+    }catch(e){
+        res.sendStatus(404);
+    }
+
     
-    res.json({email,firstname,lastname,dateOfBirth});
+    
+
 }
 
 const updateUser = async (req,res)=>{
