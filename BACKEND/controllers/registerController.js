@@ -23,8 +23,8 @@ const handleRegister = async (req, res) => {
             "visaStamp": visaStamp,
             "passportCopy":passportCopy,
             "visaVerified":false,
-            "passportVerified":false
-            
+            "passportVerified":false,
+            "verificationStatus":"pending"   
         });
 
         console.log(result);

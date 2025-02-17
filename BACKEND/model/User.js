@@ -37,7 +37,11 @@ const userSchema = new Schema({
     visaVerified:{
         type: Boolean,
         require: true
-    }     
+    },
+    verificationStatus:{
+        type: String,
+        required: true
+    },     
     // roles: {
     //     User: {
     //         type: Number,
