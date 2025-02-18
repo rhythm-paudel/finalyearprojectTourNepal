@@ -7,6 +7,7 @@ import { AuthContext } from '../context/DataProvider';
 
 //loading screen
 import LoadingAnimation from '../components/LoadingAnimation';
+import {AuthenticationProviderContext} from '../context/AuthenticationProvider';
 
 
 const LoginScreen = () => {
@@ -17,6 +18,7 @@ const LoginScreen = () => {
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { login } = useContext(AuthContext);
+  const { setIsAuthenticated } = useContext(AuthenticationProviderContext);
   //states for useremail and password
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -82,7 +84,8 @@ const LoginScreen = () => {
     
     if (loggedIn?.status===200) {
       setLoading(false);
-      navigation.dispatch(StackActions.replace('Mainstack'));
+      setIsAuthenticated(true);
+      //navigation.dispatch(StackActions.replace('Mainstack'));
       
     }
     else if(loggedIn?.status===400){

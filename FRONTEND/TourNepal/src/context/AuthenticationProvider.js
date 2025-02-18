@@ -46,7 +46,7 @@ const AuthenticationProvider = ({children}) => {
 
   return (
     //setting required context value in globally in order to make changes
-    <AuthenticationProviderContext.Provider value={{isAuthenticated,isLoading,currUser,setCurrUser}}>
+    <AuthenticationProviderContext.Provider value={{isAuthenticated,isLoading,currUser,setCurrUser,setIsAuthenticated}}>
         {children}
     </AuthenticationProviderContext.Provider>
   )

@@ -13,6 +13,8 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { clearToken} from '../utils/TokenStorage';
 import { AuthCheck } from '../context/AuthServices';
 import { useNavigation } from '@react-navigation/native';
+import {AuthenticationProviderContext} from '../context/AuthenticationProvider';
+
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({ //setting initial state of the data
@@ -28,7 +30,7 @@ const Profile = () => {
   const [uploadedStatus, setUploadedStatus] = useState({ passport: false, visa: false });
   const {getUserDetail} = useContext(AuthCheck);
   const navigation = useNavigation();
-
+  const { setIsAuthenticated } = useContext(AuthenticationProviderContext);
   //use effect to fetch the user data from the server
   useEffect(() => {
     
@@ -69,7 +71,7 @@ const Profile = () => {
   //handling logout of the user
   const handleLogout =async ()=>{
     clearToken()
-    navigation.navigate('Auth')
+    setIsAuthenticated(false);
   }
 
   //for letting the user decide to choose between camera and gallery while uploading documents
