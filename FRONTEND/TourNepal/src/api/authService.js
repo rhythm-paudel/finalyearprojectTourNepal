@@ -98,4 +98,23 @@ export const refreshToken = async (refreshToken)=>{
     }
 }
 
+export const getNearbyPlaces = async (locationDetails)=>{
+    const NEARBY_PLACES = '/location'
+    const location = locationDetails.location;
+    const radius = locationDetails.radius;
+    const destinationType = locationDetails.destinationType;
+    try{
+        const response = await baseUrl.post(NEARBY_PLACES,JSON.stringify({location,radius,destinationType}),{
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials:true
+        })
+        return response;
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
 
