@@ -3,7 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
-
+  PermissionsAndroid,
   ScrollView,
   TouchableOpacity,
   TextInput,
@@ -12,11 +12,14 @@ import Slider from '@react-native-community/slider';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import PlacesList from '../components/PlacesList';
+import { getNearbyPlaces } from '../api/authService';
+import { nearbyPlaces } from '../utils/nearbyPlaces';
+import LoadingAnimation from '../components/LoadingAnimation';
 
 const Search = () => {
   const [radius, setRadius] = useState(5); //setting initial slider
   const sliderValue = useRef(radius); // Ref to hold slider value without triggering re-rendering
-  
+  const [isLoading,setIsLoading] = useState(false); //to show loading page while retrieving data
   const [searchInput, setSearchInput] = useState(''); // search input field
   const [allPlaces, setAllPlaces] = useState([]); //for initializing empty places list
   const [filteredPlaces, setFilteredPlaces] = useState([]); // Filtered places to display
@@ -26,20 +29,36 @@ const Search = () => {
     navigation.navigate("Description")
   }
 
-  // Initialize the list of places (static places for now using for loop)
+  // Initialize the list of places when the component mounts
   useEffect(() => {
-    const places = [];
-    for (let i = 1; i <= 15; i++) {
-      places.push({
-        id: i,
-        name: `Place Number ${i}`,
-        rating: '⭐ (5/10)',
-        reviews: 25,
-      });
+
+    const getPlaces = async () => {
+      setIsLoading(true);
+      const places =await nearbyPlaces(radius*1000);
+      setIsLoading(false);
+      setAllPlaces(places);
+      setFilteredPlaces(places); // updating filteredPlaces after setting the places
+      
     }
-    setAllPlaces(places);
-    setFilteredPlaces(places); // updating filteredPlaces after setting the places
-  }, []);
+    getPlaces();
+    checkPermission();
+
+  
+  }, [radius]);
+
+  //location function
+  const getLocation = async()=>{
+    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION).catch(
+      err=>{console.log(err)}
+    )
+    return granted===PermissionsAndroid.RESULTS.GRANTED;
+  }
+
+  //check permission
+  const checkPermission = async()=>{
+    let granted = await getLocation();
+    console.log(granted);
+  }
 
   // filtering places based on search input field
   useEffect(() => {
@@ -58,6 +77,8 @@ const Search = () => {
       <PlacesList key={place.id} place={place} redirectDescriptionScreen={redirectDescriptionScreen}/>
     ));
   };
+
+ 
 
   return (
     <View style={styles.container}>
@@ -103,7 +124,9 @@ const Search = () => {
         </View>
 
         {/* List of Places */}
+        {isLoading?<LoadingAnimation message="Loading Places Nearby"></LoadingAnimation>:
         <View style={styles.placesList}>{renderPlaces()}</View>
+        }
       </ScrollView>
     </View>
   );

@@ -5,7 +5,7 @@ const { verifyRefreshToken } = require('../../middleware/verifyUser.js');
 
 
 router.route('/')
-    .get(nearbyPlacesController.getNearbyPlaces)
+    .post(nearbyPlacesController.getNearbyPlaces)
 
 
 // router.route('/getNearbyPlaces')

@@ -3,10 +3,13 @@ import React from 'react'
 
 //each card to show in the search section for places or restaurants
 const PlacesList = ({place,redirectDescriptionScreen}) => {
+
   return (
     <View key={place.id} style={styles.placeCard}>
         <Image
-          source={require('../assets/placeholder.png')} 
+          source={place.photo
+            ? { uri: place.photo }
+            : require('../assets/placeholder.png')} 
           style={styles.placeImage}
         />
         <View style={styles.placeDetails}>
