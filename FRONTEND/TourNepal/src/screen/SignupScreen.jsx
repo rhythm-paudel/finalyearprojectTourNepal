@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, Animated, Alert, KeyboardAvoidingView } from 'react-native';
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; //for icons
-import { StackActions,useNavigation } from '@react-navigation/native'; //for picking date
+import {useNavigation } from '@react-navigation/native'; //for picking date
 import * as Animatable from 'react-native-animatable'; //to navigate between screens
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker'; //for selecting images or by photo
@@ -201,17 +201,16 @@ const SignupScreen = () => {
     const passportToSave = formDataToSave('passport');
     const visaToSave = formDataToSave('visa');
     try{
-      
+      setIsLoading(true);
       const passportResponse = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
                                          passportToSave,
                                          {headers: {'Content-Type':'multipart/form-data'}}
       )
-      setIsLoading(true);
+      
       const visaResponse = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
                                              visaToSave,
                                              {headers:{'Content-Type':'multipart/form-data'}}
       )
-      setIsLoading(true);
       //if the passport and visa is securely uploaded to cloudinary
       if(passportResponse?.data.secure_url&&visaResponse?.data.secure_url){
         //a copy of form data is created to update the passport and visa fields as using set method of useState is async
