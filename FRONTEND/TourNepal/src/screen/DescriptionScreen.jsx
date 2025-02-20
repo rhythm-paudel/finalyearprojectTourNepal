@@ -1,13 +1,19 @@
-import React from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, Linking, ScrollView } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import React,{useState} from 'react';
+import { StyleSheet, View, Text, Image, TouchableOpacity, Linking, ScrollView,TextInput } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const DescriptionScreen = () => {
-  const navigateToGoogleMaps = () => { //currently a static link that redirects to eiffel tower only
-    const eiffelTowerCoordinates = "48.8584,2.2945"; // Latitude, Longitude for Eiffel Tower
-    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${eiffelTowerCoordinates}`;
+  const [comment, setComment] = useState('');
+  const route = useRoute();
+    const {place} = route.params;
+  const navigateToGoogleMaps = () => { //redirects to google maps if installed else redirects to website for that location
+    const coordinates = place.id
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${coordinates}`;
     Linking.openURL(googleMapsUrl);
   };
+
+  const handleComment = () => {};
 
   return (
     // description screen model (everything is static as of now)
@@ -17,20 +23,21 @@ const DescriptionScreen = () => {
 
         {/* Destination Section */}
         <Image
-          source={require('../assets/placeholder.png') }
+          source={place.photo
+            ? { uri: place.photo }
+            : require('../assets/placeholder.png')} 
           style={styles.destinationImage}
         />
         <View style={styles.destinationInfo}>
-          <Text style={styles.destinationTitle}>Eiffel Tower</Text>
+          <Text style={styles.destinationTitle}>{place.name}</Text>
           <Text style={styles.rating}>
-            <FontAwesome name="star" color="#FFD700" /> (9.5/10) 120
+          {place.rating}
           </Text>
           <TouchableOpacity style={styles.navigateButton} onPress={navigateToGoogleMaps}>
             <Text style={styles.navigateButtonText}>Navigate</Text>
           </TouchableOpacity>
           <Text style={styles.destinationDescription}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-            The Eiffel Tower is one of the most famous landmarks in the world.
+            {place.description?place.description:"Description is not available for restaurants"}
           </Text>
         </View>
 
@@ -51,6 +58,19 @@ const DescriptionScreen = () => {
               <Text style={styles.reviewContent}>Too crowded but worth visiting.</Text>
             </View>
           </View>
+        </View>
+
+        {/* Comment section */}
+        <View style={styles.commentSection}>
+          <TextInput
+            style={styles.commentInput}
+            placeholder="Add a comment"
+            value={comment}
+            onChangeText={setComment}
+          />
+          <TouchableOpacity style={styles.commentButton} onPress={handleComment}>
+            <Text style={styles.commentButtonText}>Submit</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -153,5 +173,29 @@ const styles = StyleSheet.create({
   reviewContent: {
     fontSize: 14,
     color: '#555',
+  },
+  commentSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+    paddingHorizontal: 10,
+  },
+  commentInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 10,
+  },
+  commentButton: {
+    backgroundColor: '#3498db',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  commentButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });

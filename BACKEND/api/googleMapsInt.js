@@ -38,10 +38,11 @@ const getNearbyDestinations = async (location, radius, destinationType) => {
         }
         placesDict.push({
           name: place.name,
+          description: descriptionOfPlace,
           location: { latitude: latitude, longitude: longitude },
           rating: place.rating,
           photoRef: photo_aaa,
-          description: descriptionOfPlace
+          
         });
        
       };
@@ -96,12 +97,23 @@ const getDescription = async (placeName)=>{
       ],
     });
   
-    const result = await chatSession.sendMessage(`Provide me a short description in about 4 sentences about ${placeName}. If nothing is found simple
-                                                  return empty string as a message. The description should be short and concise`);
+    const result = await chatSession.sendMessage(`Provide me a short description in about 4 sentences about ${placeName}
+                                                  If nothing is found simply
+                                                  return empty string as a message. The description should be short and concise.
+                                                  If the place requires entry fee please mention that too if you don't know the pricing details just simple
+                                                  reply pricing details unknown. But make sure pricing details are listed in separate paragraph. 
+                                                  You can search the web too for pricing details, also no need to display the price details for 
+                                                  national bodies. also make various comparison also give symbols like approximate because price may 
+                                                  vary right. For currency please only use NPR. And no need to provide for national bodies even if they are fee
+                                                  or requires some amount. If price cannot is unknown just simple say unavailable pricing details.
+                                                  Please note some important details, no pricing fee for nepali citizens only foreigners. and in bullet
+                                                  points with * symbol.
+`);
     console.log(result.response.text());
+    return(result.response.text());
   }
   
-  run();
+  return await run();
 }
 
 module.exports = { getNearbyDestinations };
