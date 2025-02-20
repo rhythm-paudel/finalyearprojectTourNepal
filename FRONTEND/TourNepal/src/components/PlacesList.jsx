@@ -1,8 +1,14 @@
 import { StyleSheet, Text, View,  Image,TouchableOpacity } from 'react-native'
 import React from 'react'
+import { Linking } from 'react-native';
 
 //each card to show in the search section for places or restaurants
 const PlacesList = ({place,redirectDescriptionScreen}) => {
+  const navigateToGoogleMaps = () => { //redirects to google maps if installed else redirects to website for that location
+    const coordinates = place.id
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${coordinates}`;
+    Linking.openURL(googleMapsUrl);
+  };
 
   return (
     <View key={place.id} style={styles.placeCard}>
@@ -18,10 +24,10 @@ const PlacesList = ({place,redirectDescriptionScreen}) => {
             {place.rating} {place.reviews}
           </Text>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.navigateButton} onPress={redirectDescriptionScreen}>
+            <TouchableOpacity style={styles.navigateButton}onPress={navigateToGoogleMaps} >
               <Text style={styles.buttonText}>Navigate</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.viewMoreButton}>
+            <TouchableOpacity style={styles.viewMoreButton} onPress={()=>redirectDescriptionScreen(place)}>
               <Text style={styles.buttonText}>View More</Text>
             </TouchableOpacity>
           </View>
