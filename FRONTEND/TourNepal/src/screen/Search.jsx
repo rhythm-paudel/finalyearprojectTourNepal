@@ -23,10 +23,11 @@ const Search = () => {
   const [searchInput, setSearchInput] = useState(''); // search input field
   const [allPlaces, setAllPlaces] = useState([]); //for initializing empty places list
   const [filteredPlaces, setFilteredPlaces] = useState([]); // Filtered places to display
+  const [currentSelection,setCurrentSelection] = useState('restaurants');
 
   const navigation = useNavigation();
-  const redirectDescriptionScreen = ()=>{
-    navigation.navigate("Description")
+  const redirectDescriptionScreen = (place)=>{
+    navigation.navigate("Description",{place})
   }
 
   // Initialize the list of places when the component mounts
@@ -34,17 +35,17 @@ const Search = () => {
 
     const getPlaces = async () => {
       setIsLoading(true);
-      const places =await nearbyPlaces(radius*1000);
+      const places =await nearbyPlaces(radius*1000,currentSelection);
       setIsLoading(false);
       setAllPlaces(places);
       setFilteredPlaces(places); // updating filteredPlaces after setting the places
-      
+
     }
     getPlaces();
     checkPermission();
 
   
-  }, [radius]);
+  }, [radius,currentSelection]);
 
   //location function
   const getLocation = async()=>{
@@ -57,6 +58,9 @@ const Search = () => {
   //check permission
   const checkPermission = async()=>{
     let granted = await getLocation();
+    if(granted){
+      
+    }
     console.log(granted);
   }
 
@@ -98,10 +102,12 @@ const Search = () => {
 
         {/* Buttons for Restaurants and Destinations */}
         <View style={styles.toggleButtons}>
-          <TouchableOpacity style={styles.activeButton}>
+          <TouchableOpacity style={currentSelection==='restaurants'?styles.activeButton:styles.inactiveButton}
+            onPress={()=>setCurrentSelection('restaurants')}>
             <Text style={styles.toggleText}>Restaurants</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.inactiveButton}>
+          <TouchableOpacity style={currentSelection==='tourist_attraction'?styles.activeButton:styles.inactiveButton}
+          onPress={()=>setCurrentSelection('tourist_attraction')}>
             <Text style={styles.toggleText}>Destinations</Text>
           </TouchableOpacity>
         </View>
