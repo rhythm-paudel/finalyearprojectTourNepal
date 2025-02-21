@@ -12,9 +12,10 @@ import Slider from '@react-native-community/slider';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import PlacesList from '../components/PlacesList';
-import { getNearbyPlaces } from '../api/authService';
 import { nearbyPlaces } from '../utils/nearbyPlaces';
 import LoadingAnimation from '../components/LoadingAnimation';
+
+
 
 const Search = () => {
   const [radius, setRadius] = useState(5); //setting initial slider
@@ -42,27 +43,12 @@ const Search = () => {
 
     }
     getPlaces();
-    checkPermission();
-
+    
   
   }, [radius,currentSelection]);
 
-  //location function
-  const getLocation = async()=>{
-    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION).catch(
-      err=>{console.log(err)}
-    )
-    return granted===PermissionsAndroid.RESULTS.GRANTED;
-  }
-
-  //check permission
-  const checkPermission = async()=>{
-    let granted = await getLocation();
-    if(granted){
-      
-    }
-    console.log(granted);
-  }
+ 
+  
 
   // filtering places based on search input field
   useEffect(() => {
@@ -130,9 +116,14 @@ const Search = () => {
         </View>
 
         {/* List of Places */}
-        {isLoading?<LoadingAnimation message="Loading Places Nearby"></LoadingAnimation>:
-        <View style={styles.placesList}>{renderPlaces()}</View>
-        }
+        {/* {!permissionGranted?(<Text>Permission Denied</Text>):(
+        isLoading?<LoadingAnimation message="Loading Places Nearby"></LoadingAnimation>:
+        <View style={styles.placesList}>{renderPlaces()}</View>) */}
+        {
+        isLoading?(<LoadingAnimation message="Loading Places Nearby"></LoadingAnimation>):
+        (<View style={styles.placesList}>{renderPlaces()}</View>)
+        
+      }
       </ScrollView>
     </View>
   );
