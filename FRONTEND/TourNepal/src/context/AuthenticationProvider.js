@@ -52,7 +52,7 @@ const AuthenticationProvider = ({children}) => {
     if (granted) {
       setLocationPermission(true);
         gettingCurrentLocation();
-    } else {
+    } else {  
       setLocationPermission(false);
     }
   };

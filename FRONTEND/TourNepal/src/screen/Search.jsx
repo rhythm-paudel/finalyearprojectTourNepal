@@ -1,12 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect,useContext } from 'react';
 import {
   StyleSheet,
   Text,
   View,
-  PermissionsAndroid,
+  Linking,
   ScrollView,
   TouchableOpacity,
   TextInput,
+  Alert,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -14,6 +15,8 @@ import { useNavigation } from '@react-navigation/native';
 import PlacesList from '../components/PlacesList';
 import { nearbyPlaces } from '../utils/nearbyPlaces';
 import LoadingAnimation from '../components/LoadingAnimation';
+import {AuthenticationProviderContext} from '../context/AuthenticationProvider';
+
 
 
 
@@ -25,6 +28,7 @@ const Search = () => {
   const [allPlaces, setAllPlaces] = useState([]); //for initializing empty places list
   const [filteredPlaces, setFilteredPlaces] = useState([]); // Filtered places to display
   const [currentSelection,setCurrentSelection] = useState('restaurants');
+  const {currentLocation,locationPermission} = useContext(AuthenticationProviderContext);
 
   const navigation = useNavigation();
   const redirectDescriptionScreen = (place)=>{
@@ -33,7 +37,8 @@ const Search = () => {
 
   // Initialize the list of places when the component mounts
   useEffect(() => {
-
+    console.log(currentLocation)
+    console.log(locationPermission)
     const getPlaces = async () => {
       setIsLoading(true);
       const places =await nearbyPlaces(radius*1000,currentSelection);
@@ -42,7 +47,26 @@ const Search = () => {
       setFilteredPlaces(places); // updating filteredPlaces after setting the places
 
     }
-    getPlaces();
+    if(locationPermission){
+      getPlaces();
+    }else if(!locationPermission){
+      Alert.alert(
+        'Location Permission Required',
+        'Please enable location permission to get nearby places',
+        [
+          {
+            text:'Open Settings',
+            onPress:()=>Linking.sendIntent('android.settings.LOCATION_SOURCE_SETTINGS')    
+          },
+          {
+            text:"Cancel",
+            style:'cancel'
+          }
+          
+        ]
+      )
+    }
+    
     
   
   }, [radius,currentSelection]);
@@ -119,7 +143,7 @@ const Search = () => {
         {/* {!permissionGranted?(<Text>Permission Denied</Text>):(
         isLoading?<LoadingAnimation message="Loading Places Nearby"></LoadingAnimation>:
         <View style={styles.placesList}>{renderPlaces()}</View>) */}
-        {
+        {!locationPermission?(<Text>Please provide access to your location for results</Text>):
         isLoading?(<LoadingAnimation message="Loading Places Nearby"></LoadingAnimation>):
         (<View style={styles.placesList}>{renderPlaces()}</View>)
         
