@@ -41,7 +41,7 @@ const Search = () => {
     console.log(locationPermission)
     const getPlaces = async () => {
       setIsLoading(true);
-      const places =await nearbyPlaces(radius*1000,currentSelection);
+      const places =await nearbyPlaces(radius*1000,currentSelection,currentLocation);
       setIsLoading(false);
       setAllPlaces(places);
       setFilteredPlaces(places); // updating filteredPlaces after setting the places
@@ -140,9 +140,6 @@ const Search = () => {
         </View>
 
         {/* List of Places */}
-        {/* {!permissionGranted?(<Text>Permission Denied</Text>):(
-        isLoading?<LoadingAnimation message="Loading Places Nearby"></LoadingAnimation>:
-        <View style={styles.placesList}>{renderPlaces()}</View>) */}
         {!locationPermission?(<Text>Please provide access to your location for results</Text>):
         isLoading?(<LoadingAnimation message="Loading Places Nearby"></LoadingAnimation>):
         (<View style={styles.placesList}>{renderPlaces()}</View>)

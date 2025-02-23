@@ -69,7 +69,8 @@ const AuthenticationProvider = ({children}) => {
         if (response?.status === 200) {
           let accessToken = decodedToken(tokens.accessToken);
           setCurrUser(accessToken); //setting the user session if the token is validated
-
+         
+          
           setIsAuthenticated(true);
           await saveUserLocation();
         }

@@ -1,7 +1,10 @@
 import { useRoute } from '@react-navigation/native';
-import React,{useState} from 'react';
+import React,{useEffect, useState} from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, Linking, ScrollView,TextInput } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useContext } from 'react';
+import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
+import { addComment } from '../utils/nearbyPlaces';
 
 const DescriptionScreen = () => {
   const [comment, setComment] = useState('');
@@ -12,8 +15,23 @@ const DescriptionScreen = () => {
     const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${coordinates}`;
     Linking.openURL(googleMapsUrl);
   };
+  const {currUser} = useContext(AuthenticationProviderContext) //for checking if the user is verified for posting a comment
+  const [verified,setVerified] = useState(false); //for checking if the user is verified for posting a comment
 
-  const handleComment = () => {};
+
+  useEffect(() => {
+    if(currUser.verificationStatus){
+      setVerified(true);
+    }
+    console.log(currUser.verificationStatus);
+    
+  },[]);
+
+  const handleComment = async (postType) => {
+    await addComment(comment,place.id);
+  };
+
+
 
   return (
     // description screen model (everything is static as of now)
@@ -63,13 +81,18 @@ const DescriptionScreen = () => {
         {/* Comment section */}
         <View style={styles.commentSection}>
           <TextInput
-            style={styles.commentInput}
-            placeholder="Add a comment"
+            style={[styles.commentInput, !verified && styles.disabledInput]}
+            placeholder={verified ? "Add a comment" : "Document needs to be approved before posting a review"}
             value={comment}
             onChangeText={setComment}
+            editable={verified}
+            placeholderTextColor={!verified ? '#888' : '#ccc'}
           />
-          <TouchableOpacity style={styles.commentButton} onPress={handleComment}>
-            <Text style={styles.commentButtonText}>Submit</Text>
+          <TouchableOpacity style={[styles.commentButton, !verified && styles.disabledButton]}
+          onPress={verified ?()=> handleComment('add') : null}
+          disabled={!verified}>
+            
+            <Text style={[styles.commentButtonText, !verified && styles.disabledButtonText]}>Submit</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -198,4 +221,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
   },
+  disabledInput: {
+    backgroundColor: '#f5f5f5',
+    borderColor: '#ddd',
+    color: '#888',
+  },
+  disabledButton: {
+    backgroundColor: '#a0a0a0',
+  },
+  disabledButtonText: {
+    color: '#ddd',
+  }
 });

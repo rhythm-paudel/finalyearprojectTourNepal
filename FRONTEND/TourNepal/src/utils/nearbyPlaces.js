@@ -1,49 +1,69 @@
-import { getNearbyPlaces } from "../api/authService";
+import {getNearbyPlaces} from '../api/authService';
+import { postComment } from '../api/authService';
+import { getToken } from './TokenStorage';
 
-export const nearbyPlaces = async(radii,currentSelection)=>{
+export const nearbyPlaces = async (
+  radii,
+  currentSelection,
+  currentLocation,
+) => {
+  const locationDetail = {
+    location: currentLocation.location,
+    radius: radii,
+    destinationType: currentSelection,
+  };
 
-    const locationDetail = {location:{latitude:27.656426,longitude:85.337492},radius:radii,destinationType:currentSelection};
+  try {
+    const places = [];
+    const response = await getNearbyPlaces(locationDetail);
+    if (response.status === 200) {
+      const place = response.data.ref;
+      for (let i = 0; i < place.length; i++) {
+        places.push({
+          id: `${place[i].location.latitude},${place[i].location.longitude}`,
+          name: place[i].name,
+          rating: `⭐ (${place[i].rating}/5)`,
+          reviews: 0,
+          photo: place[i].photoRef,
+          description: place[i].description,
+        });
+      }
 
-    try{
-        const places = [];
-        const response = await getNearbyPlaces(locationDetail);
-        if(response.status===200){
-            const place=response.data.ref
-            for(let i=0;i<place.length;i++){
-                console.log(place[i].description);
-                places.push(
-                    {
-                      id: `${place[i].location.latitude},${place[i].location.longitude}`,
-                      name: place[i].name,
-                      rating: `⭐ (${place[i].rating}/5)`,
-                      reviews: 0,
-                      photo: place[i].photoRef,
-                      description: place[i].description
-                    }
-                )
-            }
-
-            return places;
-        }else{
-            return [];
-        }
-    }catch(e){
-        return [];
-   
+      return places;
+    } else {
+      return [];
     }
+  } catch (e) {
+    return [];
+  }
+};
+
+//location function
+export const getLocation = async () => {
+  const granted = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  ).catch(err => {
+    console.log(err);
+  });
+  return granted === PermissionsAndroid.RESULTS.GRANTED;
+};
+
+//check permission
+export const checkPermission = async () => {
+  let granted = await getLocation();
+
+};
+
+
+export const addComment = async(comment,location)=>{
+  const accessToken =await getToken();
+  const [longitude,latitude] = location.split(',')
+  const formattedLocation = {"location":{
+    "latitude":parseFloat(latitude),
+    "longitude":parseFloat(longitude)
+  }}
+  console.log(formattedLocation.location);
+  
+  const posted = await postComment(formattedLocation,comment,accessToken.accessToken);
+  console.log(posted.status)
 }
-
-
- //location function
- export const getLocation = async()=>{
-    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION).catch(
-      err=>{console.log(err)}
-    )
-    return granted===PermissionsAndroid.RESULTS.GRANTED;
-  }
-
-  //check permission
-  export const checkPermission = async()=>{
-    let granted = await getLocation();
-    console.log(granted);
-  }

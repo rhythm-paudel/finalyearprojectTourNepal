@@ -117,4 +117,29 @@ export const getNearbyPlaces = async (locationDetails)=>{
     }
 }
 
+export const postComment = async (locationDetails,commentBody,accessToken)=>{
+    const POST_COMMENT = "/postComments";
+    console.log(locationDetails);
+    
+    const requestBody = {
+        "location": locationDetails.location,
+        "commentBody": commentBody
+      };
+   
+    try{
+        const response = await baseUrl.post(POST_COMMENT,requestBody,
+                                            {
+                                                headers:{'Authorization':`Bearer ${accessToken}`},
+                                                withCredentials:true
+                                            }
+                                            )
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
 

@@ -20,6 +20,8 @@ export const DataProvider = ({children})=>{
             //storing tokens securely
             await storeTokens(userData.data.accessToken,userData.data.encryptedToken)
             let accessToken = decodedToken(userData.data.accessToken)
+            console.log(accessToken);
+            
             setCurrUser(accessToken)
         }
         return userData;
