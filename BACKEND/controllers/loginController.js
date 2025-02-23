@@ -26,8 +26,7 @@ const handleLogin = async (req, res) => {
           "firstname": userDB.firstname,
           "lastname": userDB.lastname,
           "dateOfBirth": userDB.dateOfBirth,
-          "visaVerified":userDB.visaVerified,
-          "passportVerified":userDB.passportVerified,
+          "verificationStatus":userDB.verificationStatus,
 
         }
       },

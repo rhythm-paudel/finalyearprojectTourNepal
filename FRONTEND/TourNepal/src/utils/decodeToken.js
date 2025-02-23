@@ -8,7 +8,8 @@ export const decodedToken = (accessToken)=>{
         firstname:userData.UserDetails.firstname,
         lastname:userData.UserDetails.lastname,
         dateOfBirth:userData.UserDetails.dateOfBirth,
-        email:userData.UserDetails.email
+        email:userData.UserDetails.email,
+        verificationStatus:userData.UserDetails.verificationStatus==="verified"?true:false,
     }
     return decodedUserData
 }
