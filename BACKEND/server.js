@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const PORT = process.env.PORT || 3500;
 const connectDB = require('./config/dbConn');
 const {verifyRefreshToken} = require('./middleware/verifyUser');
-
+const { verifyUserVerification } = require('./middleware/verifyDocumentStatus');
 
 //connecting to databse
 connectDB();
@@ -30,6 +30,8 @@ app.use('/verifyJWT',require('./routes/verifyJWT'))
 //using verification of user before letting them view screens
 app.use(verifyRefreshToken)//this is named refreshToken, this is used for verification of access token
 app.use('/userDetail', require('./routes/api/userDetail'));
+app.use(verifyUserVerification)
+app.use('/postComments',require('./routes/postComments'));
 
 // app.use('/destinations', require('./routes/api/destinations'));
 

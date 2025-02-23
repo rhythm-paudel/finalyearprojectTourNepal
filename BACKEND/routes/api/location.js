@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const nearbyPlacesController = require('../../controllers/nearbyPlacesController.js');
-const { verifyRefreshToken } = require('../../middleware/verifyUser.js');
+const {verifyRefreshToken} = require('../../middleware/verifyUser.js');
 
 
 router.route('/')
