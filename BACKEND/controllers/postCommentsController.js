@@ -4,12 +4,14 @@ const postCommentsController = {
   postComments: async (req, res) => {
     const { location, commentBody } = req.body;
     const { email, firstname, lastname } = req.User;
-
+    let commentID;
+    
+    
     if (!location || !commentBody)
       return res
         .status(400)
         .json({
-          message: "Location, Comment Body and Comment Title are required.",
+          message: "Location, and Comment Body are required.",
         });
 
     let existingReview = await Reviews.findOne({
@@ -25,6 +27,7 @@ const postCommentsController = {
           lastname,
         });
         await existingReview.save();
+        commentID = existingReview.reviews.slice(-1)[0]._id;
       } else {
         const result = await Reviews.create({
           location: {
@@ -40,9 +43,12 @@ const postCommentsController = {
             },
           ],
         });
+        commentID = result.reviews[0]._id;
         console.log(result);
       }
-      res.status(201).json({ success: `New Comment Created!` });
+      res.status(201).json({ success: `New Comment Created!`,
+                             commentID: commentID
+       });  
     } catch (e) {
       res.sendStatus(404);
     }
