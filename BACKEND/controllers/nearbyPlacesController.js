@@ -27,12 +27,11 @@ const getNearbyPlaces = async (req,res)=>{
 
 
 const getReviews = async (req,res)=>{
-    const {geometry} = req.body
-    const latitude = geometry?.location?.lat
-    const longitude = geometry?.location?.lng
+    const {lat,lng} = req.query;
+    if(!lat||!lng) return res.status(400).json({ message: "Location and Latitude are required." });
     try{
-        const reviewsList = await Reviews.findOne({'location.longitude':longitude,
-                                                    'location.latitude':latitude
+        const reviewsList = await Reviews.findOne({'location.longitude':lng,
+                                                    'location.latitude':lat
         });
 
         if((reviewsList))return res.status(200).json({"reviews":reviewsList.reviews}) 
