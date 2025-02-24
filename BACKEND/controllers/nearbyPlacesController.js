@@ -26,22 +26,23 @@ const getNearbyPlaces = async (req,res)=>{
 }
 
 
-const getReviews = async (geometry)=>{
-    const latitude = geometry.location.lat
-    const longitude = geometry.location.lng
+const getReviews = async (req,res)=>{
+    const {geometry} = req.body
+    const latitude = geometry?.location?.lat
+    const longitude = geometry?.location?.lng
     try{
         const reviewsList = await Reviews.findOne({'location.longitude':longitude,
                                                     'location.latitude':latitude
         });
 
-        if((reviewsList)) return reviewsList.reviews
-        return []
+        if((reviewsList))return res.status(200).json({"reviews":reviewsList.reviews}) 
+        res.status(200).json({"reviews":[]})
     }catch(err){
-        return []
+        res.sendStatus(500) //failed to serve due to server error
     }
 
 }
 
-const getPhotoStream = async (photo_ref)=>{}
 
-module.exports = {getNearbyPlaces}
+
+module.exports = {getNearbyPlaces,getReviews}

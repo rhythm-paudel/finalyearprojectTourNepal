@@ -22,7 +22,7 @@ app.use('/refresh', require('./routes/refresh'));
 app.use('/logout', require('./routes/logout'));
 app.use('/emergencycontacts', require('./routes/emergencyContacts'));
 app.use('/location', require('./routes/api/location'));
-
+app.use('/getReviews',require('./routes/api/getReviews'));
 
 //for verification of refresh token
 app.use('/verifyJWT',require('./routes/verifyJWT'))
