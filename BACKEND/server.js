@@ -30,6 +30,7 @@ app.use('/verifyJWT',require('./routes/verifyJWT'))
 //using verification of user before letting them view screens
 app.use(verifyRefreshToken)//this is named refreshToken, this is used for verification of access token
 app.use('/userDetail', require('./routes/api/userDetail'));
+app.use('/reUploadDocs', require('./routes/reuploadDocs'));
 app.use(verifyUserVerification)
 app.use('/postComments',require('./routes/postComments'));
 
