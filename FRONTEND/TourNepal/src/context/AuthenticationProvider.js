@@ -27,8 +27,6 @@ const AuthenticationProvider = ({children}) => {
       .then(location => {
         setCurrentLocation({"location":{latitude:location.latitude,longitude:location.longitude}});
         
-        console.log(currentLocation);
-        
       })
       .catch(error => {
         const {code, message} = error;

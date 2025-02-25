@@ -119,7 +119,7 @@ export const getNearbyPlaces = async (locationDetails)=>{
 
 export const postComment = async (locationDetails,commentBody,accessToken)=>{
     const POST_COMMENT = "/postComments";
-    console.log(locationDetails);
+   
     
     const requestBody = {
         "location": locationDetails.location,
@@ -133,6 +133,61 @@ export const postComment = async (locationDetails,commentBody,accessToken)=>{
                                                 withCredentials:true
                                             }
                                             )
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
+export const updateComment = async (data,token)=>{
+    const UPDATE_COMMENT = "/postComments/update"
+    try{
+        const response = await baseUrl.put(UPDATE_COMMENT,data,
+                                            {
+                                                headers:{'Authorization':`Bearer ${token}`},
+                                                withCredentials:true
+                                            }
+                                            )
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
+export const removeComment = async (data,token) =>{
+    const REMOVE_COMMENT = "/postComments/delete"
+    try{
+        const response = await baseUrl.delete(REMOVE_COMMENT,{
+            headers: {'Authorization': `Bearer ${token}`},
+            data: data, 
+            withCredentials: true
+          })
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
+export const getPlaceReviews = async (lat,lng)=>{
+    const GET_REVIEWS = "/getReviews"
+
+    try{
+        
+        const response = await baseUrl.get(GET_REVIEWS,{
+            params:{
+                lat:lat,
+                lng:lng
+            }
+        })
         return response
     }catch(e){
         if(e.response){

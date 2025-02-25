@@ -5,7 +5,9 @@ const postCommentsController = {
     const { location, commentBody } = req.body;
     const { email, firstname, lastname } = req.User;
     let commentID;
-    
+    let text;
+    let date;
+    let review = {}
     
     if (!location || !commentBody)
       return res
@@ -25,9 +27,20 @@ const postCommentsController = {
           email,
           firstname,
           lastname,
+          commentID
         });
         await existingReview.save();
         commentID = existingReview.reviews.slice(-1)[0]._id;
+        text = existingReview.reviews.slice(-1)[0].text;      
+        date = existingReview.reviews.slice(-1)[0].date;      
+        review = {
+          text,
+          firstname,
+          lastname,
+          date,
+          email,
+          commentID
+        };
       } else {
         const result = await Reviews.create({
           location: {
@@ -44,10 +57,20 @@ const postCommentsController = {
           ],
         });
         commentID = result.reviews[0]._id;
+        text = result.reviews[0].text;
+        date = result.reviews[0].date;
+        review = {
+          text,
+          firstname,
+          lastname,
+          date,
+          email,
+          commentID
+        };
         console.log(result);
       }
       res.status(201).json({ success: `New Comment Created!`,
-                             commentID: commentID
+                             review: review
        });  
     } catch (e) {
       res.sendStatus(404);

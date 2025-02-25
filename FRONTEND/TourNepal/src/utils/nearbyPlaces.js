@@ -1,6 +1,7 @@
 import {getNearbyPlaces} from '../api/authService';
-import { postComment } from '../api/authService';
+import { postComment,updateComment,removeComment } from '../api/authService';
 import { getToken } from './TokenStorage';
+import { getPlaceReviews } from '../api/authService';
 
 export const nearbyPlaces = async (
   radii,
@@ -57,13 +58,56 @@ export const checkPermission = async () => {
 
 export const addComment = async(comment,location)=>{
   const accessToken =await getToken();
+  
   const [longitude,latitude] = location.split(',')
   const formattedLocation = {"location":{
     "latitude":parseFloat(latitude),
     "longitude":parseFloat(longitude)
   }}
-  console.log(formattedLocation.location);
+
   
   const posted = await postComment(formattedLocation,comment,accessToken.accessToken);
-  console.log(posted.status)
+  
+  return posted;
+}
+
+export const editComment = async(location,editedReview,commentID)=>{
+  const accessToken =await getToken();
+  const [longitude,latitude] = location.split(',')
+  const formattedJson = {
+    'location':{
+      'latitude':parseFloat(latitude),
+      'longitude':parseFloat(longitude)
+    },
+    'commentBody':editedReview,
+    'commentID':commentID
+  }
+
+  const response = await updateComment(formattedJson,accessToken.accessToken);
+  return response
+}
+
+export const deleteComment = async(location,commentID)=>{
+  const accessToken =await getToken();
+  console.log(accessToken.accessToken);
+  
+  const [longitude,latitude] = location.split(',')
+  const formattedJson = {
+    'location':{
+      'latitude':parseFloat(latitude),
+      'longitude':parseFloat(longitude)
+    },
+    'commentID':commentID
+  }
+
+  const response = await removeComment(formattedJson,accessToken.accessToken);
+  return response
+}
+
+export const getReviews = async(location)=>{
+  const [longitude,latitude] = location.split(',')
+
+  const reviews = await getPlaceReviews(latitude,longitude);
+
+  return reviews
 }

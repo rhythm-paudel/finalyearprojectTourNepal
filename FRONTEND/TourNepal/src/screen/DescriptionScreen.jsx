@@ -1,36 +1,84 @@
 import { useRoute } from '@react-navigation/native';
-import React,{useEffect, useState} from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, Linking, ScrollView,TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, Text, Image, TouchableOpacity, Linking, ScrollView, TextInput, Alert } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useContext } from 'react';
 import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
-import { addComment } from '../utils/nearbyPlaces';
+import { addComment, getReviews } from '../utils/nearbyPlaces';
+import Reviews from '../components/Reviews';
+import { AuthCheck } from '../context/AuthServices';
+import { storeTokens, getToken, refreshToken } from '../utils/TokenStorage';
 
 const DescriptionScreen = () => {
   const [comment, setComment] = useState('');
+  const [reviews, setReviews] = useState([]);
   const route = useRoute();
-    const {place} = route.params;
+  const { place } = route.params;
   const navigateToGoogleMaps = () => { //redirects to google maps if installed else redirects to website for that location
     const coordinates = place.id
     const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${coordinates}`;
     Linking.openURL(googleMapsUrl);
   };
-  const {currUser} = useContext(AuthenticationProviderContext) //for checking if the user is verified for posting a comment
-  const [verified,setVerified] = useState(false); //for checking if the user is verified for posting a comment
+  const { currUser } = useContext(AuthenticationProviderContext) //for checking if the user is verified for posting a comment
+  const [verified, setVerified] = useState(false); //for checking if the user is verified for posting a comment
+  
 
+  const removeComment = (commentID) => {
+    const updatedReviews = reviews.filter((review)=>review._id!==commentID);
+    setReviews(updatedReviews);
+  }
 
   useEffect(() => {
-    if(currUser.verificationStatus){
+    if (currUser.verificationStatus) {
       setVerified(true);
     }
-    console.log(currUser.verificationStatus);
+    const review = async () => {
+      const response = await getReviews(place.id);
+      if (response?.status === 200) {
+        setReviews(response.data.reviews);
+      } else {
+        setReviews([]);
+      }
+    }
+    review();
+
     
-  },[]);
+
+  }, [reviews.length]);
 
   const handleComment = async (postType) => {
-    await addComment(comment,place.id);
+    const response = await addComment(comment, place.id);
+    if (response?.status === 201) {
+      Alert.alert('Success', 'Comment was added successfully.');
+      const newReview = {
+        "_id": response.data.review.commentID, "date": response.data.review.date,
+        "text": response.data.review.text, "email": response.data.review.email,
+        "firstname": response.data.review.firstname, "lastname": response.data.review.lastname
+      }
+      setReviews(prevState => [...prevState, newReview]);
+    } else if (response?.status === 400) {
+      Alert.alert('Empty Comment', 'Please provide a valid comment');
+    }
+
+    else {
+
+      Alert.alert('Something went wrong');
+    }
+    setComment('');
   };
 
+  const renderReviews = () => {
+    if (reviews.length > 0) {
+      return reviews.map(
+
+        (review) => (
+
+
+          <Reviews key={review._id} review={review} location={place.id} removeComment={removeComment}/>
+        )
+      );
+    }
+  }
 
 
   return (
@@ -43,58 +91,48 @@ const DescriptionScreen = () => {
         <Image
           source={place.photo
             ? { uri: place.photo }
-            : require('../assets/placeholder.png')} 
+            : require('../assets/placeholder.png')}
           style={styles.destinationImage}
         />
         <View style={styles.destinationInfo}>
           <Text style={styles.destinationTitle}>{place.name}</Text>
           <Text style={styles.rating}>
-          {place.rating}
+            {place.rating}
           </Text>
           <TouchableOpacity style={styles.navigateButton} onPress={navigateToGoogleMaps}>
             <Text style={styles.navigateButtonText}>Navigate</Text>
           </TouchableOpacity>
           <Text style={styles.destinationDescription}>
-            {place.description?place.description:"Description is not available for restaurants"}
+            {place.description ? place.description : "Description is not available for restaurants"}
           </Text>
         </View>
+
+
 
         {/* Reviews Section */}
         <View style={styles.reviewsSection}>
           <Text style={styles.reviewsTitle}>Reviews</Text>
-          <View style={styles.reviewCard}>
-            <FontAwesome name="user-circle" size={40} color="#888" style={styles.reviewAvatar} />
-            <View style={styles.reviewText}>
-              <Text style={styles.reviewerName}>John Doe</Text>
-              <Text style={styles.reviewContent}>Absolutely breathtaking view!</Text>
-            </View>
+          {/* Comment section */}
+          <View style={styles.commentSection}>
+            <TextInput
+              style={[styles.commentInput, !verified && styles.disabledInput]}
+              placeholder={verified ? "Add a comment" : "Document needs to be approved before posting a review"}
+              value={comment}
+              onChangeText={setComment}
+              editable={verified}
+              placeholderTextColor={!verified ? '#888' : '#ccc'}
+            />
+            <TouchableOpacity style={[styles.commentButton, !verified && styles.disabledButton]}
+              onPress={verified ? () => handleComment('add') : null}
+              disabled={!verified}>
+
+              <Text style={[styles.commentButtonText, !verified && styles.disabledButtonText]}>Submit</Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.reviewCard}>
-            <FontAwesome name="user-circle" size={40} color="#888" style={styles.reviewAvatar} />
-            <View style={styles.reviewText}>
-              <Text style={styles.reviewerName}>Jane Smith</Text>
-              <Text style={styles.reviewContent}>Too crowded but worth visiting.</Text>
-            </View>
-          </View>
+          {renderReviews()}
         </View>
 
-        {/* Comment section */}
-        <View style={styles.commentSection}>
-          <TextInput
-            style={[styles.commentInput, !verified && styles.disabledInput]}
-            placeholder={verified ? "Add a comment" : "Document needs to be approved before posting a review"}
-            value={comment}
-            onChangeText={setComment}
-            editable={verified}
-            placeholderTextColor={!verified ? '#888' : '#ccc'}
-          />
-          <TouchableOpacity style={[styles.commentButton, !verified && styles.disabledButton]}
-          onPress={verified ?()=> handleComment('add') : null}
-          disabled={!verified}>
-            
-            <Text style={[styles.commentButtonText, !verified && styles.disabledButtonText]}>Submit</Text>
-          </TouchableOpacity>
-        </View>
+
       </ScrollView>
     </View>
   );

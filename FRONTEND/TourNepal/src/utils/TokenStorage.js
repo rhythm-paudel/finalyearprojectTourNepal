@@ -38,3 +38,8 @@ export const clearToken = async () => {
     console.error('Error Clearing tokens: ', e);
   }
 };
+
+//refresh token for getting new access token
+export const refreshToken = async (refreshToken)=>{
+  
+}

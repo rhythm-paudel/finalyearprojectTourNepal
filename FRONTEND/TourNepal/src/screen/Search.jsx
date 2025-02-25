@@ -37,8 +37,7 @@ const Search = () => {
 
   // Initialize the list of places when the component mounts
   useEffect(() => {
-    console.log(currentLocation)
-    console.log(locationPermission)
+    
     const getPlaces = async () => {
       setIsLoading(true);
       const places =await nearbyPlaces(radius*1000,currentSelection,currentLocation);
