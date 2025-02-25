@@ -216,4 +216,18 @@ export const getPlaceReviews = async (lat,lng)=>{
     }
 }
 
+export const getContacts = async ()=>{
+    const GET_CONTACTS = "/emergencycontacts"
+
+    try{
+        const response = await baseUrl.get(GET_CONTACTS)
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
 

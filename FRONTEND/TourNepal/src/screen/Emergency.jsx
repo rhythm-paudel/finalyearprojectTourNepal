@@ -8,23 +8,31 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ContactsList from '../components/ContactsList';
+import { getEmergencyContacts } from '../utils/emegergencyContacts';
+import ErrMessage from '../components/ErrMessage';
 
 const Emergency = () => {
   const [contacts, setContacts] = useState([]); // store emergency contacts
   const [searchInput, setSearchInput] = useState(''); // store search input
   const [filteredContacts, setFilteredContacts] = useState([]); // store filtered contacts
+  const [errMessage, setErrMessage] = useState('');
 
   // initializing contacts (later will be extracted from database)
   useEffect(() => {
-    const emergencyContacts = [
-      { id: 1, name: 'Police', number: '100' },
-      { id: 2, name: 'Ambulance', number: '101' },
-      { id: 3, name: 'Fire Brigade', number: '102' },
-      { id: 4, name: 'Disaster Management', number: '108' },
-      { id: 5, name: 'Tourist Helpline', number: '1363' },
-    ];
-    setContacts(emergencyContacts);
-    setFilteredContacts(emergencyContacts);
+   
+    const getEmegencyContacts = async () => {
+      const response = await getEmergencyContacts()
+      if(response?.status===200){
+        setContacts(response.data);
+      setFilteredContacts(response.data);
+        console.log(response.data);
+        
+      }else{
+        setErrMessage("No Emergency contacts found")
+      }
+    }
+    getEmegencyContacts();
+    
   }, []);
 
   // filtering the search result based on the search button
@@ -43,7 +51,7 @@ const Emergency = () => {
 
   const renderContacts = () => { //component for rendering contacts extracted from database
     return filteredContacts.map((contact) => (
-        <ContactsList key={contact.name} contact={contact}/>
+        <ContactsList key={contact._id} contact={contact}/>
     ));
   };
 
@@ -63,6 +71,7 @@ const Emergency = () => {
         </View>
 
         {/* Contact Cards */}
+        {errMessage && <ErrMessage message={errMessage} />}
         <View style={styles.contactsContainer}>{renderContacts()}</View>
       </ScrollView>
     </View>
