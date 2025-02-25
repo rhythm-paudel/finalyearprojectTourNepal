@@ -1,12 +1,12 @@
 import { createContext, useContext } from "react";
 import { loginUser } from "../api/authService";
-import { registerUser } from "../api/authService";
+import { registerUser,reuploadDocs } from "../api/authService";
 import { decodedToken } from '../utils/decodeToken';
 //importing context for setting user
 import { AuthenticationProviderContext } from "./AuthenticationProvider";
 
 //importing utils for token
-import { storeTokens } from "../utils/TokenStorage";
+import { getToken, storeTokens } from "../utils/TokenStorage";
 
 export const AuthContext = createContext();
 
@@ -26,13 +26,30 @@ export const DataProvider = ({children})=>{
         return userData;
     }
 
+  
+
     //function to call after user registers
     const register = async (formData)=>{
         const response = await registerUser(formData);
         return response;
     }
+
+    //function to reupload documents
+    const reuploadDocuments = async(formData)=>
+    {
+        console.log(formData);
+        const formattedData = {
+            passportCopy: formData.passport,
+            visaStamp: formData.visa}
+        const token =await getToken();
+        const response = await reuploadDocs(formattedData,token.accessToken);
+     
+        
+        return response;
+    }
+
     return(
-        <AuthContext.Provider value={{login,register}}>
+        <AuthContext.Provider value={{login,register,reuploadDocuments}}>
 
             {children}
 

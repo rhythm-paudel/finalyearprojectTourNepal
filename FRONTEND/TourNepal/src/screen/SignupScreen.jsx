@@ -159,7 +159,7 @@ const SignupScreen = () => {
     //callback function to perform what after user chooses photo or clicks picture
     const callback = (response) => {
       if (response.assets?.[0]?.uri) {
-        setFormData(prev => ({ ...prev, [field]: response.assets[0] })); //getting the base64 value of image
+        setFormData(prev => ({ ...prev, [field]: response.assets[0] })); 
         setUploadedStatus(prev => ({ ...prev, [field]: true })); //setting the form data with uploaded image
 
       }

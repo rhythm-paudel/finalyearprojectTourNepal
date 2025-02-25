@@ -61,6 +61,25 @@ export const registerUser = async (formData)=>{
     }
 }
 
+//reuploading user documents
+export const reuploadDocs = async (formData,token)=>{
+    const UPLOAD_DOCS = '/reUploadDocs'
+
+    try{
+        const response = await baseUrl.put(UPLOAD_DOCS,formData,
+            {
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        })
+        return response;
+    }catch(e){
+        if(e.response){
+            return e.response;
+        }
+        return null;
+    }
+}
+
 //function for feteching userDetails
 export const fetchUserDetails = async (accessToken)=>{
     

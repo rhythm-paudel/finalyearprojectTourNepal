@@ -1,4 +1,4 @@
-import React, { useState,useEffect,useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,13 +10,21 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { clearToken} from '../utils/TokenStorage';
+import { clearToken } from '../utils/TokenStorage';
 import { AuthCheck } from '../context/AuthServices';
 import { useNavigation } from '@react-navigation/native';
-import {AuthenticationProviderContext} from '../context/AuthenticationProvider';
+import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
+import ErrMessage from '../components/ErrMessage';
+import axios from 'axios';
+import { ActivityIndicator } from 'react-native-paper';
 
+import { UPLOAD_PRESET, CLOUD_NAME } from '@env';
+import { AuthContext } from '../context/DataProvider';
 
 const Profile = () => {
+
+  const { reuploadDocuments } = useContext(AuthContext);
+
   const [profileData, setProfileData] = useState({ //setting initial state of the data
     name: '',
     dob: '',
@@ -25,43 +33,110 @@ const Profile = () => {
     passport: null,
     visa: null,
   });
+
+  //setting up form data to keep the data consistent
+  const [formData, setFormData] = useState({
+    passport: null,
+    visa: null,
+  });
+
   const [loading, setLoading] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false); //for making the field editable
   const [uploadedStatus, setUploadedStatus] = useState({ passport: false, visa: false });
-  const {getUserDetail} = useContext(AuthCheck);
+  const { getUserDetail } = useContext(AuthCheck);
   const navigation = useNavigation();
   const { setIsAuthenticated } = useContext(AuthenticationProviderContext);
+  const [errMsg, setErrMsg] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);//for re-rendering profile data after data is updated
   //use effect to fetch the user data from the server
   useEffect(() => {
-    
-    
-    
-     setLoading(true); //for loading screen
-     const fetchUserData = async () => {
-       const response = await getUserDetail()
-        if(response.status===200){ //if the user access token is valid setting the user data
-          const dob = new Date(response.data.dob).toLocaleDateString();
-          const userData = {
-            name: response.data.firstname + ' ' + response.data.lastname,
-            dob: dob,
-            email: response.data.email,
-            visaStatus: response.data.verificationStatus,
-          }
-          setProfileData(userData)
-        }else {//if the access and refresh token is expired
-          navigation.navigate('Auth')
+
+
+
+    setLoading(true); //for loading screen
+    const fetchUserData = async () => {
+      const response = await getUserDetail()
+      if (response.status === 200) { //if the user access token is valid setting the user data
+        const dob = new Date(response.data.dob).toLocaleDateString();
+        const userData = {
+          name: response.data.firstname + ' ' + response.data.lastname,
+          dob: dob,
+          email: response.data.email,
+          visaStatus: response.data.verificationStatus,
         }
-        
-      
-       
+        setProfileData(userData)
+      } else {//if the access and refresh token is expired
+        navigation.navigate('Auth')
+      }
+
+
+
     }
     fetchUserData();
     setLoading(false);
-  }, []);
+  }, [refreshTrigger]);
 
   const handleEmailChange = (text) => {//when email changed updating the current user
     setProfileData({ ...profileData, email: text });
   };
+
+  const handleDeletion = () => {
+
+  }
+
+  const handleReupload = async () => {
+    if (!formData.passport?.uri || !formData.visa?.uri) {
+      setErrMsg(true);
+    } else {
+
+      setErrMsg(false)
+      const passportToSave = formDataToSave('passport');
+      const visaToSave = formDataToSave('visa');
+
+      try {
+        setLoading(true);
+
+
+        const passportResponse = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+          passportToSave,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        )
+
+        const visaResponse = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+          visaToSave,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        )
+        //if the passport and visa is securely uploaded to cloudinary
+
+        if (passportResponse?.data.secure_url && visaResponse?.data.secure_url) {
+          //a copy of form data is created to update the passport and visa fields as using set method of useState is async
+          const updatedData = {
+            ...formData,
+            passport: passportResponse.data.secure_url,
+            visa: visaResponse.data.secure_url,
+          };
+          
+          const reupload = await reuploadDocuments(updatedData);
+          if (reupload?.status === 200) {
+            Alert.alert('Documents Updated', 'Your documents have been updated successfully.');
+            setRefreshTrigger((prev)=>prev+1);
+          } else if (reupload?.status === 400) {
+            Alert.alert('Incomplete Submission', 'Both the documents are required to be uploaded');
+          } else {
+            Alert.alert('Something went wrong');
+          }
+
+          //messages to be shown after registration
+
+        }
+        setLoading(false);
+      } catch (e) {
+        setLoading(false);
+        console.log('error')
+      }
+
+    }
+  }
 
   const saveEmail = () => {
     setIsEditingEmail(false);
@@ -69,7 +144,7 @@ const Profile = () => {
   };
 
   //handling logout of the user
-  const handleLogout =async ()=>{
+  const handleLogout = async () => {
     clearToken()
     setIsAuthenticated(false);
   }
@@ -101,30 +176,58 @@ const Profile = () => {
   const handleImagePicker = (type, field) => {
     const options = {
       mediaType: 'photo',
-      includeBase64: true,
+      includeBase64: false,
     };
 
     const callback = (response) => {
-      if (response.assets && response.assets.length > 0) {
-        const selectedImage = response.assets[0].base64;
-        setProfileData((prevState) => ({
-          ...prevState,
-          [field]: selectedImage,
+      if (response.assets?.[0]?.uri) {
+        setFormData(prev => ({
+          ...prev,
+          [field]: response.assets[0]  // Store the full asset object instead of base64
         }));
-        setUploadedStatus((prevState) => ({
-          ...prevState,
-          [field]: true,
+        setUploadedStatus(prev => ({
+          ...prev,
+          [field]: true
         }));
       }
     };
 
     //options and callback are defined to perform actions for certain mediaType
-    if (type === 'camera') { 
+    if (type === 'camera') {
       launchCamera(options, callback);
     } else if (type === 'gallery') {
       launchImageLibrary(options, callback);
     }
   };
+
+  //creating form data to push to cloudinary
+  const formDataToSave = (copyType) => {
+    const toSave = new FormData();
+    const [firstName, lastName] = profileData.name.split(' ');
+    if (copyType === 'passport') {
+      const name = `${firstName}-${lastName}-passport`;
+
+
+      toSave.append('file', {
+        uri: formData.passport.uri,
+        type: formData.passport.type || 'image/jpeg',
+        name: name || 'passport'
+
+      })
+    } else if (copyType === 'visa') {
+      const name = `${firstName}-${lastName}-visa`;
+
+      toSave.append('file', {
+        uri: formData.visa.uri,
+        type: formData.visa.type || 'image/jpeg',
+        name: name || 'visa'
+
+      })
+    }
+    toSave.append('upload_preset', UPLOAD_PRESET);
+    return toSave;
+
+  }
 
   //for rendering certain fields according to the visa status of the user. 
   //if rejected certain buttons are added
@@ -136,6 +239,7 @@ const Profile = () => {
     } else if (profileData.visaStatus === 'rejected') {
       return (
         <View>
+
           <Text style={styles.visaStatus}>Visa Status: Rejected</Text>
           <TouchableOpacity
             style={[styles.uploadButton, uploadedStatus.passport && styles.uploadSuccess]}
@@ -161,7 +265,8 @@ const Profile = () => {
             />
             <Text style={styles.uploadButtonText}>Upload Visa</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.resubmitButton}>
+          {errMsg && <ErrMessage message="Need to upload both passport and visa." />}
+          <TouchableOpacity style={styles.resubmitButton} onPress={handleReupload}>
             <Text style={styles.resubmitButtonText}>Resubmit</Text>
           </TouchableOpacity>
         </View>
@@ -173,6 +278,15 @@ const Profile = () => {
 
   return (
     <View style={styles.container}>
+
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#ffffff" />
+            <Text style={styles.loadingText}>Uploading Documents...</Text>
+          </View>
+        </View>
+      )}
       {/* Profile Section */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Profile</Text>
@@ -214,7 +328,7 @@ const Profile = () => {
             )}
           </View>
           <TouchableOpacity style={styles.passwordButton}>
-            <Text style={styles.passwordButtonText}>Change Password</Text>
+            <Text style={styles.passwordButtonText}>Request Profile Deletion</Text>
           </TouchableOpacity>
           {renderVisaSection()}
         </View>
@@ -351,7 +465,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },logoutButton: {
+  }, logoutButton: {
     backgroundColor: '#e74c3c',
     padding: 15,
     borderRadius: 5,
@@ -362,5 +476,27 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  }
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  loadingContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'white',
+    marginTop: 10,
+    fontSize: 16,
+  },
 });
