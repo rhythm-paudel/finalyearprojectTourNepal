@@ -1,8 +1,10 @@
 import {StyleSheet, PermissionsAndroid, View} from 'react-native';
 import React, {useState, useEffect, createContext} from 'react';
-import {getToken} from '../utils/TokenStorage';
+import {getToken,storeTokens} from '../utils/TokenStorage';
 import {checkUserToken} from '../api/authService';
 import {decodedToken} from '../utils/decodeToken';
+import { fetchUserDetails,refreshToken } from "../api/authService";
+
 
 //importing GetLocation for getting current location
 import GetLocation from 'react-native-get-location';
@@ -20,7 +22,7 @@ const AuthenticationProvider = ({children}) => {
 
   //getting current location
   const gettingCurrentLocation = async () => {
-    GetLocation.getCurrentPosition({
+    await GetLocation.getCurrentPosition({
       enableHighAccuracy: true,
       timeout: 60000,
     })
@@ -55,6 +57,28 @@ const AuthenticationProvider = ({children}) => {
     }
   };
 
+  //function for getting user details 
+  const getUserDetail = async ()=>{
+    let encryptedToken =await getToken();
+    const response = await fetchUserDetails(encryptedToken.accessToken);
+    if(response?.status===403){ //if the current access token is expired
+
+        const accessToken = await getAccessToken(); //requesting new accessToken
+        if(accessToken?.status===200){
+            storeTokens(accessToken.data.accessToken,encryptedToken.encryptedToken);
+            encryptedToken = await getToken();
+            const newResponse = await fetchUserDetails(encryptedToken.accessToken); //re-requesting user details
+            return newResponse;
+        }else{ //incase if the refresh token is also expired
+      
+            return response;
+        }
+    }
+
+    
+    return response;
+}
+
   //initilizing user and their location
   useEffect(() => {
     const checkToken = async () => {
@@ -66,7 +90,8 @@ const AuthenticationProvider = ({children}) => {
 
         if (response?.status === 200) {
           let accessToken = decodedToken(tokens.accessToken);
-          setCurrUser(accessToken); //setting the user session if the token is validated
+          const details = await getUserDetail();
+          setCurrUser(details); //setting the user session if the token is validated
          
           
           setIsAuthenticated(true);
@@ -102,7 +127,8 @@ const AuthenticationProvider = ({children}) => {
         setCurrUser,
         setIsAuthenticated,
         currentLocation,
-        locationPermission
+        locationPermission,
+        getUserDetail
       }}>
       {children}
     </AuthenticationProviderContext.Provider>

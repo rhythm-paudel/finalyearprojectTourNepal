@@ -43,7 +43,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false); //for making the field editable
   const [uploadedStatus, setUploadedStatus] = useState({ passport: false, visa: false });
-  const { getUserDetail } = useContext(AuthCheck);
+  const { getUserDetail } = useContext(AuthenticationProviderContext);
   const navigation = useNavigation();
   const { setIsAuthenticated } = useContext(AuthenticationProviderContext);
   const [errMsg, setErrMsg] = useState(false);

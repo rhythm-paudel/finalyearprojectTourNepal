@@ -29,7 +29,10 @@ const DescriptionScreen = () => {
   }
 
   useEffect(() => {
-    if (currUser.verificationStatus) {
+    console.log(currUser);
+    if (currUser.verificationStatus==="verified") {
+      
+      
       setVerified(true);
     }
     const review = async () => {
