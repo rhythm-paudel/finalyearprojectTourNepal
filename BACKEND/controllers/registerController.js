@@ -2,8 +2,10 @@ const User = require('../model/User');
 const bcrypt = require('bcrypt');
 
 const handleRegister = async (req, res) => {
-    const { email, password,firstname, lastname, dateOfBirth, visaStamp, passportCopy } = req.body;
-    if (!email || !password || !firstname || !lastname || !dateOfBirth || !visaStamp || !passportCopy) return res.status(400).json({ 'message': 'Every Fields are not filled out Properly. Please Try Again!' });
+    const { email, password,firstname, lastname, dateOfBirth, visaStamp, passportCopy,dateOfEntry,nationality,intendedDays} = req.body;
+    if (!email || !password || !firstname || !lastname || !dateOfBirth || !visaStamp 
+        || !passportCopy || !dateOfEntry || !nationality || !intendedDays) 
+        return res.status(400).json({ 'message': 'Every Fields are not filled out Properly. Please Try Again!' });
 
     // check for duplicate usernames in the db
     const duplicate = await User.findOne({ email: email }).exec();
@@ -22,8 +24,6 @@ const handleRegister = async (req, res) => {
             "dateOfBirth": dateOfBirth,
             "visaStamp": visaStamp,
             "passportCopy":passportCopy,
-            "visaVerified":false,
-            "passportVerified":false,
             "verificationStatus":"pending"   
         });
 

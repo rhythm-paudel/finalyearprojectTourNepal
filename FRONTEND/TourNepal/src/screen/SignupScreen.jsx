@@ -5,6 +5,8 @@ import {useNavigation } from '@react-navigation/native'; //for picking date
 import * as Animatable from 'react-native-animatable'; //to navigate between screens
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker'; //for selecting images or by photo
+import { Picker } from '@react-native-picker/picker';
+import countries from '../utils/countries';
 
 import axios from 'axios';
 
@@ -29,7 +31,10 @@ const SignupScreen = () => {
     password:'',
     confirmPassword:'',
     passport:'',
-    visa:''
+    visa:'',
+    dateOfEntry: '',
+    nationality: '',
+    intendedDays: ''
   });
   
   //setting up form data to keep the data consistent
@@ -42,6 +47,9 @@ const SignupScreen = () => {
     confirmPassword: '',
     passport: null,
     visa: null,
+    dateOfEntry: new Date(),
+    nationality: '',
+    intendedDays: ''
   });
   //for showing checkmarks
   const [uploadedStatus, setUploadedStatus] = useState({ passport: false, visa: false });
@@ -52,6 +60,7 @@ const SignupScreen = () => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [inputFocus, setInputFocus] = useState({ firstname: false, lastname: false, email: false, password: false, confirmPassword: false });
+  const [showEntryDatePicker, setShowEntryDatePicker] = useState(false);
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const emailScale = useRef(new Animated.Value(1)).current;
@@ -101,6 +110,17 @@ const SignupScreen = () => {
       newErrors.passport = !formData.passport ? 'Passport is required' : '';
       newErrors.visa = !formData.visa ? 'Visa is required' : '';
       isValid = !newErrors.passport && !newErrors.visa;
+    }
+
+    if (pageNumber === 5) {
+      newErrors.dateOfEntry = !formData.dateOfEntry ? 'Date of entry is required' : '';
+      newErrors.nationality = !formData.nationality ? 'Nationality is required' : '';
+      newErrors.intendedDays = !formData.intendedDays 
+        ? 'Intended days is required' 
+        : isNaN(formData.intendedDays) || formData.intendedDays <= 0 
+          ? 'Must be a positive number' 
+          : '';
+      isValid = !newErrors.dateOfEntry && !newErrors.nationality && !newErrors.intendedDays;
     }
 
     setErrMessage(newErrors);
@@ -463,13 +483,101 @@ const SignupScreen = () => {
                 <View style={styles.buttonGroup}>
                   <TouchableOpacity
                     style={[styles.navButton, { marginRight: 10 }]}
-                    onPress={() => setCurrentPage(2)}
+                    onPress={() => setCurrentPage(3)}
                   >
                     <Text style={styles.navButtonText}>Previous</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.navButton}
-                    onPress={() =>{if(checkField(3)) handleRegister()}}
+                    onPress={() =>{if(checkField(4)) setCurrentPage(5)}}
+                  >
+                    <Text style={styles.navButtonText}>Sign Up</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+
+            {currentPage === 5 && (
+              <>
+                <Animatable.Text animation="fadeInUp" duration={800} style={styles.signInText}>
+                  Additional Information
+                </Animatable.Text>
+
+                {/* Date of Entry */}
+                <Animated.View style={[
+                  styles.inputContainer,
+                  { borderColor: '#ccc', transform: [{ scale: 1 }] }
+                ]}>
+                  <FontAwesome name="calendar" size={20} color="grey" />
+                  <TouchableOpacity
+                    style={styles.inputField}
+                    onPress={() => setShowEntryDatePicker(true)}
+                  >
+                    <Text style={[styles.placeholderText, { marginLeft: 10 }]}>
+                      Date of Entry: {formData.dateOfEntry.toDateString()}
+                    </Text>
+                  </TouchableOpacity>
+                </Animated.View>
+                <ErrMessage message={errMessage.dateOfEntry} />
+                {showEntryDatePicker && (
+                  <DateTimePicker
+                    value={formData.dateOfEntry}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      if (selectedDate) setFormData({ ...formData, dateOfEntry: selectedDate });
+                      setShowEntryDatePicker(false);
+                    }}
+                  />
+                )}
+
+                {/* Nationality */}
+                <View style={styles.inputContainer}>
+                  <FontAwesome name="globe" size={20} color="grey" style={{ marginLeft: 5 }} />
+                  <Picker
+                    selectedValue={formData.nationality}
+                    style={styles.picker}
+                    onValueChange={(itemValue) => setFormData({ ...formData, nationality: itemValue })}
+                  >
+                   {countries.map((country) => (
+                    <Picker.Item 
+                      key={country.value} 
+                      label={country.label} 
+                      value={country.value} 
+                    />
+                  ))}
+                  
+                  </Picker>
+                </View>
+                <ErrMessage message={errMessage.nationality} />
+
+                {/* Intended Days */}
+                <Animated.View style={[
+                  styles.inputContainer,
+                  { borderColor: '#ccc', transform: [{ scale: 1 }] }
+                ]}>
+                  <FontAwesome name="calendar-check-o" size={20} color="grey" />
+                  <TextInput
+                    style={styles.inputField}
+                    placeholder="Intended Days"
+                    placeholderTextColor="#888"
+                    keyboardType="numeric"
+                    value={formData.intendedDays}
+                    onChangeText={(text) => setFormData({ ...formData, intendedDays: text })}
+                  />
+                </Animated.View>
+                <ErrMessage message={errMessage.intendedDays} />
+
+                <View style={styles.buttonGroup}>
+                  <TouchableOpacity
+                    style={[styles.navButton, { marginRight: 10 }]}
+                    onPress={() => setCurrentPage(4)}
+                  >
+                    <Text style={styles.navButtonText}>Previous</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.navButton}
+                    onPress={() => { if (checkField(5)) handleRegister() }}
                   >
                     <Text style={styles.navButtonText}>Sign Up</Text>
                   </TouchableOpacity>
@@ -642,6 +750,11 @@ const styles = StyleSheet.create({
     aspectRatio: 16 / 9,
     resizeMode: "cover",
     marginTop: 20,
+  },
+  picker: {
+    flex: 1,
+    color: '#262626',
+    marginLeft: 10,
   },
 });
 

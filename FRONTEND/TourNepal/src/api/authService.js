@@ -47,7 +47,8 @@ export const registerUser = async (formData)=>{
         const response = await baseUrl.post(REGISTER_URL,JSON.stringify({email:formData.email,password:formData.password,
                                                                          firstname:formData.firstname, lastname:formData.lastname,
                                                                          dateOfBirth:formData.dob,visaStamp:formData.visa,passportCopy:
-                                                                         formData.passport
+                                                                         formData.passport,dateOfEntry:formData.dateOfEntry,
+                                                                         nationality:formData.nationality,intendedDays:formData.intendedDays
         }),{
             headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
