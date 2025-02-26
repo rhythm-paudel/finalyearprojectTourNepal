@@ -15,7 +15,7 @@ const getUserDetails =async (req,res)=>{
                 
                 res.status(200).json({email:userDB.email, firstname:userDB.firstname, 
                     lastname:userDB.lastname, dob:userDB.dateOfBirth, 
-                    verificationStatus:userDB.verificationStatus}
+                    verificationStatus:userDB.verificationStatus,deletionRequest:userDB.deletionRequest}
                 );
          
                 
@@ -30,11 +30,11 @@ const getUserDetails =async (req,res)=>{
 }
 
 const updateUser = async (req,res)=>{
-    const {updatedEmail,updatedPassword,oldPassword} = req.body
+    const {updatedEmail,updatedPassword,oldPassword,deletionRequest} = req.body
     const {email} = req
 
 
-    if(!updatedEmail && !updatedPassword) res.sendStatus(406) //not acceptable as there is nothing to change
+    if(!updatedEmail && !updatedPassword && !deletionRequest===undefined) res.sendStatus(406) //not acceptable as there is nothing to change
 
     try{
         const userDB = await User.findOne({ email }).exec();
@@ -52,11 +52,27 @@ const updateUser = async (req,res)=>{
 
             
         }
-        if(updatedEmail&&!password){
+        if(updatedEmail&&!updatedPassword){
             
         }
-        if(password&&!updatedEmail){
-            response = updateUserPassword(updatedPassword)
+        if(updatedPassword&&!updatedEmail){
+            //response = updateUserPassword(updatedPassword)
+        }
+
+        if(deletionRequest===true){
+            const result =await User.findOneAndUpdate(
+                {email},
+                {
+                    $set:{"deletionRequest":deletionRequest}
+                },
+                {new:true}
+            )
+            if(!result){
+                res.status(404).json({message:"User not found"})
+                return
+            }
+            res.status(200).json({message:"User Deletion Request Updated"})
+            return
         }
 
         else{

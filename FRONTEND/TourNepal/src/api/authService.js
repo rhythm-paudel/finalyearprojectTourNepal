@@ -231,4 +231,25 @@ export const getContacts = async ()=>{
     }
 }
 
+export const deleteRequest = async (token)=>{
+    const DELETE_REQUEST = "/userDetail/updateUser"
+
+    
+    try{
+        const response = await baseUrl.put(DELETE_REQUEST,{"deletionRequest":true},{
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        })
+        console.log(response.status,"Deletion request status");
+        
+        return response;
+
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
 

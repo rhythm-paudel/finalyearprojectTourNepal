@@ -20,6 +20,7 @@ import { ActivityIndicator } from 'react-native-paper';
 
 import { UPLOAD_PRESET, CLOUD_NAME } from '@env';
 import { AuthContext } from '../context/DataProvider';
+import { deleteRequest } from '../utils/userActions';
 
 const Profile = () => {
 
@@ -32,6 +33,7 @@ const Profile = () => {
     visaStatus: 'not_verified', // Options: 'not_verified', 'pending', 'rejected', 'verified'
     passport: null,
     visa: null,
+    deleteRequest: false
   });
 
   //setting up form data to keep the data consistent
@@ -63,6 +65,7 @@ const Profile = () => {
           dob: dob,
           email: response.data.email,
           visaStatus: response.data.verificationStatus,
+          deleteRequest: response.data.deletionRequest
         }
         setProfileData(userData)
       } else {//if the access and refresh token is expired
@@ -81,7 +84,31 @@ const Profile = () => {
   };
 
   const handleDeletion = () => {
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to delete your account? This process is irreversible.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: async () => {
+            const response = await deleteRequest();
+            if (response.status === 200) {
+              Alert.alert('Deletion Request Successful', 'Your account will be reviewed for deletion process.');
+             
+            } else {
+              console.log(response.data);
+              
+              Alert.alert('Something went wrong');
+            }
+          }
+        }
 
+      ]
+    )
   }
 
   const handleReupload = async () => {
@@ -344,8 +371,8 @@ const Profile = () => {
               </View>
             )}
           </View>
-          <TouchableOpacity style={styles.passwordButton}>
-            <Text style={styles.passwordButtonText}>Request Profile Deletion</Text>
+          <TouchableOpacity style={styles.passwordButton} onPress={handleDeletion} disabled={profileData.deleteRequest}>
+            <Text style={styles.passwordButtonText}>{profileData.deleteRequest?'Deletion Request Sent':'Request Profile Deletion'}</Text>
           </TouchableOpacity>
           {renderVisaSection()}
         </View>
