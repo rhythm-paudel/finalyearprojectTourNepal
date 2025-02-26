@@ -24,8 +24,12 @@ const handleRegister = async (req, res) => {
             "dateOfBirth": dateOfBirth,
             "visaStamp": visaStamp,
             "passportCopy":passportCopy,
-            "verificationStatus":"pending"   
-        });
+            "verificationStatus":"pending" ,
+            "dateOfEntry":dateOfEntry,
+            "nationality":nationality,
+            "intendedDays":intendedDays,
+            "deletionRequest":false
+        });     
 
         console.log(result);
 

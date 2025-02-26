@@ -30,18 +30,26 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    passportVerified:{
-        type: Boolean,
-        require: true
-    },
-    visaVerified:{
-        type: Boolean,
-        require: true
-    },
     verificationStatus:{
         type: String,
         required: true
-    },     
+    },   
+    dateOfEntry: {
+        type: Date,
+        required: true
+    },
+    nationality: {
+        type: String,
+        required: true
+    },
+    intendedDays: {
+        type: Number,
+        required: true
+    },
+    deletionRequest: {
+        type: Boolean,
+        default: false
+    } 
     // roles: {
     //     User: {
     //         type: Number,
