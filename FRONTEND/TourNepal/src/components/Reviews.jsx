@@ -1,58 +1,122 @@
-import { StyleSheet, Text, View,TouchableOpacity, Alert } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { TextInput } from 'react-native-paper';
 import { useContext } from 'react';
 import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
-import { editComment,deleteComment } from '../utils/nearbyPlaces';
+import { editComment, deleteComment } from '../utils/nearbyPlaces';
 
 
-const Reviews = ({ review, location,removeComment }) => {
+const Reviews = ({ review, location, removeComment }) => {
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [editedReview, setEditedReview] = useState(review.text);
+  const [initialReview, setInitialReview] = useState(review.text);
+  const [editedReview, setEditedReview] = useState(initialReview);
   const [isEditable, setIsEditable] = useState(false);
-  const {currUser} = useContext(AuthenticationProviderContext) //for checking if the user can edit or delete the review
+ 
+  
+  const { currUser } = useContext(AuthenticationProviderContext) //for checking if the user can edit or delete the review
 
-  const handleEdit =async () => {
-    if(isEditable){
-      const updatedReviewResponse = await editComment(location,editedReview,review._id);
-      if(updatedReviewResponse.status===200){
-        Alert.alert('Edited Successfully', 'Your review has been edited successfully');
-        review.text = editedReview;
-      }else if(updatedReviewResponse.status===400){
-        Alert.alert('Empty Fields', 'Your review had missing fields');
-      }else if(updatedReviewResponse.status===404){
-        Alert.alert('Review Not Found', 'The review you are trying to edit does not exist');
-      }else{
-        Alert.alert('Something went wrong');
-      }
-      
-      
+  const handleEdit = async () => {
+    if (isEditable) {
+       Alert.alert(
+        'Save Changes',
+        'Are you sure you want to make changes to the comment',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => {
+              setEditedReview(initialReview);
+              setIsEditable(false);
+            }
+          },
+          {
+            text: 'Save',
+            onPress: async () => {
+              if (isEditable) {
+                const updatedReviewResponse = await editComment(location, editedReview, review._id);
+                if (updatedReviewResponse.status === 200) {
+                  Alert.alert('Edited Successfully', 'Your review has been edited successfully');
+                  review.text = editedReview;
+                  setIsEditable(false);
+                  setInitialReview(editedReview);
+                } else if (updatedReviewResponse.status === 400) {
+                  Alert.alert('Empty Fields', 'Your review had missing fields');
+                } else if (updatedReviewResponse.status === 404) {
+                  Alert.alert('Review Not Found', 'The review you are trying to edit does not exist');
+                } else {
+                  Alert.alert('Something went wrong');
+                }
+
+
+              }
+             
+            },
+            style: 'destructive',
+          },
+        ],
+        { 
+          cancelable: true,
+          onDismiss: () => {
+            setEditedReview(initialReview);
+          }
+         }
+      );
+    }else{
+      setIsEditable(true);
     }
-    setIsEditable((prev)=>!prev);
+
+   
   }
 
-  const handleDelete = async() => {
-    const response = await deleteComment(location,review._id)
-    if(response.status===200){
-      Alert.alert('Deleted Successfully', 'Your review has been deleted successfully');
-      removeComment(review._id);
-    }else if(response.status===404){
-      Alert.alert('Review Not Found', 'The review you are trying to delete does not exist');
-    }else{
-      console.log(response?.status);
-      Alert.alert('Something went wrong');
-    }
+  const handleDelete = async () => {
+    Alert.alert(
+      'Delete Comment',
+      'Are you sure you want to delete your comment',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: async () => {
+            const response = await deleteComment(location, review._id)
+            if (response.status === 200) {
+              Alert.alert('Deleted Successfully', 'Your review has been deleted successfully');
+              removeComment(review._id);
+            } else if (response.status === 404) {
+              Alert.alert('Review Not Found', 'The review you are trying to delete does not exist');
+            } else {
+              console.log(response?.status);
+              Alert.alert('Something went wrong');
+            }
+          },
+          style: 'destructive',
+        },
+      ],
+      { 
+        cancelable: true
+        
+      },
+   
+    );
+
+  }
+
+  const handleCancel = () => {
+    setEditedReview(initialReview);
+    setIsEditable(false);
   }
 
   useEffect(() => {
     console.log(location);
-    
-    if(currUser.email===review.email){
+
+    if (currUser.email === review.email) {
       setIsAuthorized(true);
     }
-    
-  },[editedReview])
+
+  }, [editedReview])
 
   return (
     <View style={styles.reviewCard}>
@@ -64,17 +128,27 @@ const Reviews = ({ review, location,removeComment }) => {
             value={editedReview}
             onChangeText={setEditedReview}
             style={styles.reviewContent} />
-        ) : (<Text style={styles.reviewContent}>{editedReview}</Text>)}
+        ) : (<Text style={styles.reviewContent}>{review.text}</Text>)}
 
       </View>
       {isAuthorized && (
         <View style={styles.buttonsContainer}>
+          {!isEditable?(
+            <>
           <TouchableOpacity onPress={handleEdit} style={styles.button}>
             <FontAwesome name="pencil" size={20} color="#5ac3ed" />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleDelete} style={styles.button}>
             <FontAwesome name="trash" size={20} color="#f54242" />
           </TouchableOpacity>
+          </>
+          ):(<><TouchableOpacity onPress={handleEdit} style={styles.button}>
+          <FontAwesome name="save" size={20} color="#5ac3ed" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleCancel} style={styles.button}>
+          <FontAwesome name="times" size={20} color="#f54242" />
+        </TouchableOpacity></>)
+}
         </View>
       )}
     </View>

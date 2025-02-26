@@ -21,18 +21,18 @@ const DescriptionScreen = () => {
   };
   const { currUser } = useContext(AuthenticationProviderContext) //for checking if the user is verified for posting a comment
   const [verified, setVerified] = useState(false); //for checking if the user is verified for posting a comment
-  
+
 
   const removeComment = (commentID) => {
-    const updatedReviews = reviews.filter((review)=>review._id!==commentID);
+    const updatedReviews = reviews.filter((review) => review._id !== commentID);
     setReviews(updatedReviews);
   }
 
   useEffect(() => {
     console.log(currUser);
-    if (currUser.verificationStatus==="verified") {
-      
-      
+    if (currUser.verificationStatus === "verified") {
+
+
       setVerified(true);
     }
     const review = async () => {
@@ -45,29 +45,47 @@ const DescriptionScreen = () => {
     }
     review();
 
-    
+
 
   }, [reviews.length]);
 
-  const handleComment = async (postType) => {
-    const response = await addComment(comment, place.id);
-    if (response?.status === 201) {
-      Alert.alert('Success', 'Comment was added successfully.');
-      const newReview = {
-        "_id": response.data.review.commentID, "date": response.data.review.date,
-        "text": response.data.review.text, "email": response.data.review.email,
-        "firstname": response.data.review.firstname, "lastname": response.data.review.lastname
-      }
-      setReviews(prevState => [...prevState, newReview]);
-    } else if (response?.status === 400) {
-      Alert.alert('Empty Comment', 'Please provide a valid comment');
-    }
+  const handleComment = async () => {
+    Alert.alert(
+      'Add a review',
+      'Confirm your review before posting',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Save',
+          onPress: async () => {
+            const response = await addComment(comment, place.id);
+            if (response?.status === 201) {
+              Alert.alert('Success', 'Comment was added successfully.');
+              const newReview = {
+                "_id": response.data.review.commentID, "date": response.data.review.date,
+                "text": response.data.review.text, "email": response.data.review.email,
+                "firstname": response.data.review.firstname, "lastname": response.data.review.lastname
+              }
+              setReviews(prevState => [...prevState, newReview]);
+            } else if (response?.status === 400) {
+              Alert.alert('Empty Comment', 'Please provide a valid comment');
+            }
 
-    else {
+            else {
 
-      Alert.alert('Something went wrong');
-    }
-    setComment('');
+              Alert.alert('Something went wrong');
+            }
+            setComment('');
+          },
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
+
   };
 
   const renderReviews = () => {
@@ -77,7 +95,7 @@ const DescriptionScreen = () => {
         (review) => (
 
 
-          <Reviews key={review._id} review={review} location={place.id} removeComment={removeComment}/>
+          <Reviews key={review._id} review={review} location={place.id} removeComment={removeComment} />
         )
       );
     }
@@ -126,7 +144,7 @@ const DescriptionScreen = () => {
               placeholderTextColor={!verified ? '#888' : '#ccc'}
             />
             <TouchableOpacity style={[styles.commentButton, !verified && styles.disabledButton]}
-              onPress={verified ? () => handleComment('add') : null}
+              onPress={verified ? () => handleComment() : null}
               disabled={!verified}>
 
               <Text style={[styles.commentButtonText, !verified && styles.disabledButtonText]}>Submit</Text>

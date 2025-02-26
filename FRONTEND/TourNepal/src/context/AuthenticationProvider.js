@@ -91,10 +91,15 @@ const AuthenticationProvider = ({children}) => {
         if (response?.status === 200) {
           let accessToken = decodedToken(tokens.accessToken);
           const details = await getUserDetail();
-          setCurrUser(details); //setting the user session if the token is validated
-         
+          if(details?.status===200){
+            setCurrUser(details.data); //setting the user session if the token is validated
+
           
-          setIsAuthenticated(true);
+            setIsAuthenticated(true);
+          }else{
+            setIsAuthenticated(false);
+          }
+          
           await saveUserLocation();
         }
         //if the access token is not 200 then everything else is set to false

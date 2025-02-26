@@ -145,8 +145,25 @@ const Profile = () => {
 
   //handling logout of the user
   const handleLogout = async () => {
-    clearToken()
-    setIsAuthenticated(false);
+    Alert.alert(
+      'Logout Confirmation',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          onPress: async () => {
+            await clearToken();
+            setIsAuthenticated(false);
+          },
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
   }
 
   //for letting the user decide to choose between camera and gallery while uploading documents
