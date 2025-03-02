@@ -30,11 +30,11 @@ const getUserDetails =async (req,res)=>{
 }
 
 const updateUser = async (req,res)=>{
-    const {updatedEmail,updatedPassword,oldPassword,deletionRequest} = req.body
+    const {updatedEmail,updatedPassword,oldPassword,deletionRequest,notificationToken} = req.body
     const {email} = req
 
 
-    if(!updatedEmail && !updatedPassword && !deletionRequest===undefined) res.sendStatus(406) //not acceptable as there is nothing to change
+    if(!updatedEmail && !updatedPassword && deletionRequest===undefined && !notificationToken) res.sendStatus(406) //not acceptable as there is nothing to change
 
     try{
         const userDB = await User.findOne({ email }).exec();
@@ -74,9 +74,22 @@ const updateUser = async (req,res)=>{
             res.status(200).json({message:"User Deletion Request Updated"})
             return
         }
+        
 
-        else{
-            res.sendStatus(400)
+        if(notificationToken){
+            const result =await User.findOneAndUpdate(
+                {email},
+                {
+                    $set:{"notificationToken":notificationToken}
+                },
+                {new:true}
+            )
+            if(!result){
+                res.status(404).json({message:"User not found"})
+                return
+            }
+            res.status(200).json({message:"User Notification Token Updated"})
+            return
         }
     }catch(err){
         res.status(500).json({ 'message': err.message });

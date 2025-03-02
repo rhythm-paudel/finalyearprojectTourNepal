@@ -122,6 +122,8 @@ const AuthenticationProvider = ({children}) => {
  
   }, []);
 
+  
+
   return (
     //setting required context value in globally in order to make changes
     <AuthenticationProviderContext.Provider

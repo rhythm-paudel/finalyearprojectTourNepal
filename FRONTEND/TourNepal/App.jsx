@@ -7,15 +7,21 @@ import { PaperProvider } from 'react-native-paper';
 //importing context providers
 import { DataProvider } from './src/context/DataProvider';
 
-import { getToken } from './src/utils/TokenStorage';
+import {PermissionsAndroid} from 'react-native';
+
 
 //importing stacks
 import RootNavigator from './src/navigations/RootNavigator';
 import AuthenticationProvider from './src/context/AuthenticationProvider';
 import { AuthServices } from './src/context/AuthServices';
+import messaging from '@react-native-firebase/messaging';
+import { androidNotificationToken } from './src/utils/userActions';
+
 
 const App = () => {
-
+  
+  
+  
   return (
 
     <PaperProvider>

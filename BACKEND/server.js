@@ -8,11 +8,14 @@ const PORT = process.env.PORT || 3500;
 const connectDB = require('./config/dbConn');
 const {verifyRefreshToken} = require('./middleware/verifyUser');
 const { verifyUserVerification } = require('./middleware/verifyDocumentStatus');
+const bodyParser = require('body-parser');
+
+
 
 //connecting to databse
 connectDB();
 
-
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use('/', require('./routes/root'));
@@ -23,6 +26,7 @@ app.use('/logout', require('./routes/logout'));
 app.use('/emergencycontacts', require('./routes/emergencyContacts'));
 app.use('/location', require('./routes/api/location'));
 app.use('/getReviews',require('./routes/api/getReviews'));
+app.use('/send-notification',require('./routes/api/firebaseNotification'))
 
 //for verification of refresh token
 app.use('/verifyJWT',require('./routes/verifyJWT'))

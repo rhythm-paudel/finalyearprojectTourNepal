@@ -49,6 +49,9 @@ const userSchema = new Schema({
     deletionRequest: {
         type: Boolean,
         default: false
+    },
+    notificationToken: {
+        type: String
     } 
     // roles: {
     //     User: {

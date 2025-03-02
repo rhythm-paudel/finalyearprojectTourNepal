@@ -7,6 +7,7 @@ import { AuthenticationProviderContext } from "./AuthenticationProvider";
 
 //importing utils for token
 import { getToken, storeTokens } from "../utils/TokenStorage";
+import { androidNotificationToken, updateToken } from "../utils/userActions";
 
 export const AuthContext = createContext();
 
@@ -19,10 +20,18 @@ export const DataProvider = ({children})=>{
         if(userData && userData?.data.accessToken){
             //storing tokens securely
             await storeTokens(userData.data.accessToken,userData.data.encryptedToken)
-            let accessToken = decodedToken(userData.data.accessToken)
-            
             const details = await getUserDetail();
             setCurrUser(details.data); //setting the user session if the token is validated
+            const notificationToken = await androidNotificationToken();
+            
+
+            const response = await updateToken(notificationToken,userData.data.accessToken);
+         
+            if(response?.status===200){
+                console.log("token updated");
+            }else{
+                console.log("token not updated");
+            }
        
             
             

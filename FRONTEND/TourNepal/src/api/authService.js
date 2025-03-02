@@ -240,7 +240,7 @@ export const deleteRequest = async (token)=>{
             headers:{'Authorization':`Bearer ${token}`},
             withCredentials:true
         })
-        console.log(response.status,"Deletion request status");
+       
         
         return response;
 
@@ -251,5 +251,25 @@ export const deleteRequest = async (token)=>{
         return null
     }
 }
+
+export const  updateTokenNotification = async(notificationToken,token)=>{
+    const UPDATE_TOKEN = "/userDetail/updateUser"
+
+    try{
+     
+        
+        const response = await baseUrl.put(UPDATE_TOKEN,{"notificationToken":notificationToken},{
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        })
+        console.log(response);
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+};
 
 
