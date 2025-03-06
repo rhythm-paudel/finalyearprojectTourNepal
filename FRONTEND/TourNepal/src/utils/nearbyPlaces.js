@@ -56,7 +56,7 @@ export const checkPermission = async () => {
 };
 
 
-export const addComment = async(comment,location)=>{
+export const addComment = async(comment,location,name)=>{
   const accessToken =await getToken();
   
   const [longitude,latitude] = location.split(',')
@@ -66,7 +66,7 @@ export const addComment = async(comment,location)=>{
   }}
 
   
-  const posted = await postComment(formattedLocation,comment,accessToken.accessToken);
+  const posted = await postComment(formattedLocation,comment,accessToken.accessToken,name);
   
   return posted;
 }

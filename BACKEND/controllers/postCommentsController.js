@@ -2,14 +2,14 @@ const Reviews = require("../model/Reviews");
 
 const postCommentsController = {
   postComments: async (req, res) => {
-    const { location, commentBody } = req.body;
+    const { location, commentBody,name } = req.body;
     const { email, firstname, lastname } = req.User;
     let commentID;
     let text;
     let date;
     let review = {}
     
-    if (!location || !commentBody)
+    if (!location || !commentBody || !name)
       return res
         .status(400)
         .json({
@@ -21,15 +21,19 @@ const postCommentsController = {
       "location.latitude": location.latitude,
     });
     try {
+    
+      
       if (existingReview) {
+
         existingReview.reviews.push({
           text: commentBody,
           email,
           firstname,
-          lastname,
-          commentID
+          lastname
         });
+   
         await existingReview.save();
+
         commentID = existingReview.reviews.slice(-1)[0]._id;
         text = existingReview.reviews.slice(-1)[0].text;      
         date = existingReview.reviews.slice(-1)[0].date;      
@@ -55,6 +59,7 @@ const postCommentsController = {
               lastname,
             },
           ],
+          name: name
         });
         commentID = result.reviews[0]._id;
         text = result.reviews[0].text;

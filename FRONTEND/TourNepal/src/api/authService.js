@@ -137,13 +137,14 @@ export const getNearbyPlaces = async (locationDetails)=>{
     }
 }
 
-export const postComment = async (locationDetails,commentBody,accessToken)=>{
+export const postComment = async (locationDetails,commentBody,accessToken,name)=>{
     const POST_COMMENT = "/postComments";
    
     
     const requestBody = {
         "location": locationDetails.location,
-        "commentBody": commentBody
+        "commentBody": commentBody,
+        "name":name
       };
    
     try{

@@ -61,7 +61,7 @@ const DescriptionScreen = () => {
         {
           text: 'Save',
           onPress: async () => {
-            const response = await addComment(comment, place.id);
+            const response = await addComment(comment, place.id,place.name);
             if (response?.status === 201) {
               Alert.alert('Success', 'Comment was added successfully.');
               const newReview = {
