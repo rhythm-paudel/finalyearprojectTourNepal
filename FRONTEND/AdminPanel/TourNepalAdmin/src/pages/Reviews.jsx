@@ -1,0 +1,131 @@
+import React, { useState } from 'react';
+
+const Reviews = () => {
+
+  const [reviews, setReviews] = useState([
+    {
+      id: 1,
+      comment: 'Great place!',
+      placeName: 'Central Park',
+      fullName: 'John Doe',
+      email: 'john@example.com'
+    },
+    {
+      id: 2,
+      comment: 'Could be better',
+      placeName: 'Eiffel Tower',
+      fullName: 'Jane Smith',
+      email: 'jane@example.com'
+    },
+ 
+  ]);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const handleDelete = (id) => {
+    setReviews(reviews.filter(review => review.id !== id));
+  };
+
+  const filteredReviews = reviews.filter(review => 
+    Object.values(review).some(value =>
+      String(value).toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
+  const indexOfLastReview = currentPage * itemsPerPage;
+  const indexOfFirstReview = indexOfLastReview - itemsPerPage;
+  const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
+  const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+
+  return (
+    <div className="p-6 bg-white-900 min-h-screen text-white">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-indigo-400">Reviews Management</h1>
+        </div>
+
+        <div className="mb-6 flex justify-between items-center">
+          <input
+            type="text"
+            placeholder="Search reviews..."
+            className="bg-gray-800 text-white px-4 py-2 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+          <div className="flex items-center space-x-4">
+            <span className="text-gray-400">
+              Showing {indexOfFirstReview + 1} to {Math.min(indexOfLastReview, filteredReviews.length)} of {filteredReviews.length} entries
+            </span>
+          </div>
+        </div>
+
+        <div className="rounded-lg overflow-hidden border border-gray-800">
+          <table className="w-full">
+            <thead className="bg-blue-800">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Comment</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Place Name</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Full Name</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Email</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-800">
+              {currentReviews.map((review) => (
+                <tr 
+                  key={review.id} 
+                  className="hover:bg-gray-800 hover:text-white transition-colors group"
+                >
+                  <td className="px-6 py-4 group-hover:text-white text-black">{review.comment}</td>
+                  <td className="px-6 py-4 group-hover:text-white text-black">{review.placeName}</td>
+                  <td className="px-6 py-4 group-hover:text-white text-black">{review.fullName}</td>
+                  <td className="px-6 py-4 group-hover:text-white text-black">{review.email}</td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleDelete(review.id)}
+                      className="text-red-400 hover:text-red-300 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-6 flex justify-between items-center">
+          <span className="text-gray-400">
+            Showing {indexOfFirstReview + 1} to {Math.min(indexOfLastReview, filteredReviews.length)} of {filteredReviews.length} entries
+          </span>
+          <div className="flex space-x-2">
+            <button 
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded bg-gray-800 text-gray-400 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <button className="px-3 py-1 rounded bg-indigo-600 text-white">
+              {currentPage}
+            </button>
+            <button 
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className="px-3 py-1 rounded bg-gray-800 text-gray-400 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Reviews;
