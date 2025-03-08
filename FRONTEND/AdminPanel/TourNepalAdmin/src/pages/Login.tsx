@@ -1,7 +1,41 @@
-import React from 'react'
-
+import React,{useState,useContext} from 'react'
+import { loginAdmin } from '../api/authService';
+import { useNavigate } from 'react-router-dom';
+import  AuthContext  from '../context/AuthProvider';
+import Loading from '../components/Loading';
 
 const Login = () => {
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const {setUser} = useContext(AuthContext);
+  
+  const navigate = useNavigate();
+
+  const handleLogin =async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const response = await loginAdmin(username,password);
+    setLoading(false)
+    if(response.status === 200){
+     setUser(response.data)
+     navigate('/')
+    }
+
+  }
+
+  if(loading){
+    return(
+      <Loading message="Logging In"/>
+ 
+
+    )
+  }
+
+
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="w-full max-w-xs">
@@ -16,7 +50,8 @@ const Login = () => {
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
                 id="username"
                 type="text"
-                placeholder="Username"
+                placeholder={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="mb-6">
@@ -28,12 +63,15 @@ const Login = () => {
                 id="password"
                 type="password"
                 placeholder="******************"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <div className="flex items-center justify-between">
               <button
                 className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="button"
+           
+                onClick={handleLogin}
               >
                 Sign In
               </button>
