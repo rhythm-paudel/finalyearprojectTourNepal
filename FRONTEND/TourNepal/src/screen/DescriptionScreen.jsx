@@ -29,7 +29,7 @@ const DescriptionScreen = () => {
   }
 
   useEffect(() => {
-    console.log(currUser);
+
     if (currUser.verificationStatus === "verified") {
 
 

@@ -68,7 +68,7 @@ const Search = () => {
     
     
   
-  }, [radius,currentSelection]);
+  }, [radius,currentSelection,currentLocation]);
 
  
   

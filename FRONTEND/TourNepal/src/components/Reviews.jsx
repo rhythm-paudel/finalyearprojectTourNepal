@@ -110,7 +110,7 @@ const Reviews = ({ review, location, removeComment }) => {
   }
 
   useEffect(() => {
-    console.log(location);
+
 
     if (currUser.email === review.email) {
       setIsAuthorized(true);
