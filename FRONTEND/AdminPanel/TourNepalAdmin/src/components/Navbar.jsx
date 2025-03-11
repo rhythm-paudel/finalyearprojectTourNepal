@@ -1,8 +1,10 @@
-import React,{useState} from 'react'
+import React,{useState,useContext} from 'react'
 import { Link } from 'react-router-dom'
+import AuthContext from '../context/AuthProvider';
 
 function Navbar() {
 
+  const {user} = useContext(AuthContext);
 
   const [currentPage, setCurrentPage] = useState('Home'); //for updating the view of current page in sidebar
 
@@ -99,8 +101,8 @@ function Navbar() {
         <div className="flex items-center space-x-3 hover:bg-gray-800 rounded-lg p-3 cursor-pointer transition-colors duration-300">
           <div className="w-8 h-8 bg-indigo-500 rounded-full"></div>
           <div>
-            <p className="text-sm font-medium">John Doe</p>
-            <p className="text-xs text-gray-400">Administrator</p>
+            <p className="text-sm font-medium">{user.AdminDetail.username}</p>
+            <p className="text-xs text-gray-400">{user.AdminDetail.email}</p>
           </div>
         </div>
       </div>

@@ -34,3 +34,84 @@ export const refreshToken = async () => {
         return null;
     }
 }
+
+export const getContacts = async ()=>{
+    try{
+        const response = await baseUrl.get("/emergencycontacts")
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response;
+        }
+        return null;
+    }
+}
+
+
+export const editContact = async (id,editValues,token)=>{
+    try{
+        const response = await baseUrl.put('/admin/editcontact',{id,editValues,},
+        {
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        }
+        )
+        return response;
+    }catch(e){
+        if(e.response){
+            return e.response;
+        }
+        return null;
+    }
+
+}
+
+export const deleteContact = async (id,token)=>{
+    try{
+        const response = await baseUrl.delete(`/admin/deleteContact/${id}`,
+        {
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        }
+        )
+        console.log("hi",response.status);
+        
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response;
+        }
+        return null;
+    }
+}
+
+export const addContact = async (name,number,token)=>{
+    try{
+        const response = await baseUrl.post('/admin/addcontact',{name,number},
+        {
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        }
+        )
+        console.log("testing",response.status);
+        
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response;
+        }
+        return null;
+    }
+}
+
+export const getAccessToken = async ()=>{
+    try{
+        const response = await baseUrl.get("/admin/refreshtoken")
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response;
+        }
+        return null;
+    }
+}

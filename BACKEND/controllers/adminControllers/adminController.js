@@ -38,12 +38,15 @@ const login = async (req, res) => {
         );
         adminDB.refreshToken = refreshToken
         await adminDB.save();
-        res.cookie('jwt',refreshToken,{httpOnly:true,sameSite: 'None',secure: true, maxAge:24*60*60*1000});
+        res.cookie('jwt',refreshToken,{httpOnly:true,sameSite: 'None',secure: false, maxAge:24*60*60*1000});
         res.status(200).json({accessToken,"AdminDetail":{"email":adminDB.email,"username":adminDB.username}});
     }catch(err){
         console.log(err)
         res.status(500).json({ 'message': err.message });
     }
 }
+
+
+
 
 module.exports = {login}
