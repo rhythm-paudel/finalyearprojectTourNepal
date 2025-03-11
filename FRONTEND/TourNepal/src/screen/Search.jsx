@@ -23,7 +23,7 @@ import {AuthenticationProviderContext} from '../context/AuthenticationProvider';
 const Search = () => {
   const [radius, setRadius] = useState(5); //setting initial slider
   const sliderValue = useRef(radius); // Ref to hold slider value without triggering re-rendering
-  const [isLoading,setIsLoading] = useState(false); //to show loading page while retrieving data
+  const [isLoading,setIsLoading] = useState(true); //to show loading page while retrieving data
   const [searchInput, setSearchInput] = useState(''); // search input field
   const [allPlaces, setAllPlaces] = useState([]); //for initializing empty places list
   const [filteredPlaces, setFilteredPlaces] = useState([]); // Filtered places to display
