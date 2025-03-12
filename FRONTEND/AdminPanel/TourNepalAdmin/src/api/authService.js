@@ -115,3 +115,36 @@ export const getAccessToken = async ()=>{
         return null;
     }
 }
+
+export const getReviews = async (token)=>{
+    try{
+        const response = await baseUrl.get("/admin/reviews/getreviews",{
+            withCredentials: true,
+            headers:{'Authorization':`Bearer ${token}`}
+        })
+
+        
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response;
+        }
+        return null;
+    }
+}
+
+export const deleteReview = async (reviewid,locationid,token)=>{
+
+    try{
+        const response = await baseUrl.delete(`/admin/reviews/deletereview/${locationid}/${reviewid}`,{
+            withCredentials:true,
+            headers:{'Authorization':`Bearer ${token}`}
+        })
+        return response;
+    }catch(e){
+        if(e.response){
+            return e.response;
+        }
+        return null;
+    }
+}
