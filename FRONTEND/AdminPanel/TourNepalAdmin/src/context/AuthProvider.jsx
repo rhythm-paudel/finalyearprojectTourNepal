@@ -13,6 +13,10 @@ export const AuthProvider = ({children}) => {
             const token = await refreshToken();
             if(token.status === 200){
                 setUser(token.data)
+        
+                
+            }else{
+                setUser(null);
             }
             setLoading(false);
         }

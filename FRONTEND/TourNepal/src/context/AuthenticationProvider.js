@@ -81,44 +81,52 @@ const AuthenticationProvider = ({children}) => {
 
   //initilizing user and their location
   useEffect(() => {
+
+    
     const checkToken = async () => {
       setIsLoading(true);
-      const tokens = await getToken();
+      try{
+        const tokens = await getToken();
 
-      if (tokens && tokens.encryptedToken && tokens.accessToken) {
-        const response = await checkUserToken(tokens.encryptedToken); //waiting for response from the backend
+        if (tokens && tokens.encryptedToken && tokens.accessToken) {
+          const response = await checkUserToken(tokens.encryptedToken); //waiting for response from the backend
 
-        if (response?.status === 200) {
-          let accessToken = decodedToken(tokens.accessToken);
-          const details = await getUserDetail();
-          if(details?.status===200){
-            setCurrUser(details.data); //setting the user session if the token is validated
+          if (response?.status === 200) {
+            let accessToken = decodedToken(tokens.accessToken);
+            const details = await getUserDetail();
+            if(details?.status===200){
+              setCurrUser(details.data); //setting the user session if the token is validated
 
-          
-            setIsAuthenticated(true);
-          }else{
+            
+              setIsAuthenticated(true);
+            }else{
+              setIsAuthenticated(false);
+            }
+            
+            await saveUserLocation();
+          }
+          //if the access token is not 200 then everything else is set to false
+          else {
             setIsAuthenticated(false);
           }
-          
-          await saveUserLocation();
-        }
-        //if the access token is not 200 then everything else is set to false
-        else {
+        } else {
+          setIsLoading(false);
           setIsAuthenticated(false);
         }
-      } else {
+
+        
         setIsLoading(false);
-        setIsAuthenticated(false);
+      }catch(e){
+        setIsLoading(false)
       }
-      setIsLoading(false);
-    };
+  }
 
     const saveUserLocation = async () => {
         await saveLocation();
     }
 
+  
     checkToken();
-    
  
   }, []);
 
