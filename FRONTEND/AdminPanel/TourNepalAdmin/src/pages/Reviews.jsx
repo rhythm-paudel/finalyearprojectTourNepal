@@ -1,12 +1,12 @@
 import React, { useEffect, useState,useContext } from 'react';
-import { getReviews,deleteReview } from '../api/authService';
+import { getReviews,deleteReview, getAccessToken } from '../api/authService';
 import Loading from '../components/Loading';
 import  AuthContext  from '../context/AuthProvider';
 
 
 const Reviews = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const {user} = useContext(AuthContext);
+  const {user,setUser} = useContext(AuthContext);
   const [reviews, setReviews] = useState([
     {
       id: 1,
@@ -37,6 +37,17 @@ const Reviews = () => {
     if(response?.status===200){
       setReviews(reviews.filter(review => review.id !== ids.reviewid));
   
+    }else if(response?.status===403){
+      const newToken = await getAccessToken();
+      if(newToken?.status===200){
+        setUser(newToken.data)
+        const response = await deleteReview(ids.reviewid,ids.placeid,newToken.data.accessToken)
+        if(response?.status===200){
+          setReviews(reviews.filter(review => review.id !== ids.reviewid));
+      
+        }
+
+      }
     }
     setDeleteConfirm(null);
   };
