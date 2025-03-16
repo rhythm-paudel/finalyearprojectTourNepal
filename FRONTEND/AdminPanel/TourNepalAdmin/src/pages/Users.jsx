@@ -1,64 +1,111 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { getAllUser,getAccessToken } from '../api/authService';
+import AuthContext from '../context/AuthProvider';
+import { deleteUser } from '../api/authService';
 
 const Users = () => {
+  const [deletingUser, setDeletingUser] = useState(null);
+  const {user,setUser} = useContext(AuthContext);
   // Static user data
   const [users, setUsers] = useState([
     {
-      id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
+      _id: 1,
+      firstname: 'John',
+      lastname: 'Doe',
       email: 'john@example.com',
       deletionRequest: 'Pending',
-      docStatus: 'Complete'
+      verificationStatus: 'Complete',
+      passportCopy:"xyz",
+      visaStamp:"xyz",
+      dateOfEntry:"",
+      nationality:"CA",
+      intendedDays:20,
+      dateOfBirth:""
     },
     {
-      id: 2,
-      firstName: 'Jane',
-      lastName: 'Smith',
+      _id: 2,
+      firstname: 'Jane',
+      lastname: 'Smith',
       email: 'jane@example.com',
       deletionRequest: 'None',
-      docStatus: 'Incomplete'
+      verificationStatus: 'Incomplete',
+      passportCopy:"xyz",
+      visaStamp:"xyz",
+      dateOfEntry:"",
+      nationality:"CA",
+      intendedDays:20,
+      dateOfBirth:""
     },
     {
-      id: 3,
-      firstName: 'Bob',
-      lastName: 'Johnson',
+      _id: 3,
+      firstname: 'Bob',
+      lastname: 'Johnson',
       email: 'bob@example.com',
       deletionRequest: 'Pending',
-      docStatus: 'Complete'
+      verificationStatus: 'Complete',
+      passportCopy:"xyz",
+      visaStamp:"xyz",
+      dateOfEntry:"",
+      nationality:"CA",
+      intendedDays:20,
+      dateOfBirth:""
     },
     {
-      id: 4,
-      firstName: 'Alice',
-      lastName: 'Williams',
+      _id: 4,
+      firstname: 'Alice',
+      lastname: 'Williams',
       email: 'alice@example.com',
       deletionRequest: 'None',
-      docStatus: 'Incomplete'
+      verificationStatus: 'Incomplete',
+      passportCopy:"xyz",
+      visaStamp:"xyz",
+      dateOfEntry:"",
+      nationality:"CA",
+      intendedDays:20,
+      dateOfBirth:""
     },
     {
-      id: 5,
-      firstName: 'Charlie',
-      lastName: 'Brown',
+      _id: 5,
+      firstname: 'Charlie',
+      lastname: 'Brown',
       email: 'charlie@example.com',
       deletionRequest: 'Pending',
-      docStatus: 'Complete'
+      verificationStatus: 'Complete',
+      passportCopy:"xyz",
+      visaStamp:"xyz",
+      dateOfEntry:"",
+      nationality:"CA",
+      intendedDays:20,
+      dateOfBirth:""
     },
     {
-      id: 6,
-      firstName: 'Eva',
-      lastName: 'Davis',
+      _id: 6,
+      firstname: 'Eva',
+      lastname: 'Davis',
       email: 'eva@example.com',
       deletionRequest: 'None',
-      docStatus: 'Incomplete'
+      verificationStatus: 'Incomplete',
+      passportCopy:"xyz",
+      visaStamp:"xyz",
+      dateOfEntry:"",
+      nationality:"CA",
+      intendedDays:20,
+      dateOfBirth:""
     },
     {
-      id: 7,
-      firstName: 'Frank',
-      lastName: 'Miller',
+      _id: 7,
+      firstname: 'Frank',
+      lastname: 'Miller',
       email: 'frank@example.com',
       deletionRequest: 'Pending',
-      docStatus: 'Complete'
+      verificationStatus: 'Complete',
+      passportCopy:"xyz",
+      visaStamp:"xyz",
+      dateOfEntry:"",
+      nationality:"CA",
+      intendedDays:20,
+      dateOfBirth:""
     },
   ]);
 
@@ -66,11 +113,32 @@ const Users = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  const handleDelete = (id) => {
-    setUsers(users.filter(user => user.id !== id));
+  const handleDelete =async (_id) => {
+    const response = await deleteUser(_id,true,user.accessToken);
+    if(response?.status===200){
+      window.alert('User deleted successfully!');
+    }else if(response?.status===202){
+      //will show popup saying request rejected
+      window.alert('Deletion request rejected');
+    }else if(response?.status===403){
+      const newToken = await getAccessToken();
+      if(newToken?.status==200){
+        setUser(newToken.data);
+        const response = await deleteUser(_id,decision,newToken.data.accessToken);
+        if(response?.status===200){
+          window.alert('User deleted successfully!');
+        }else if(response?.status===202){
+          //will show popup saying request rejected
+          window.alert('Deletion request rejected');
+        }
+      }else if(newToken.status===403){
+        setUser(null);
+      }
+    }
+    setUsers(users.filter(user => user._id !== _id));
   };
 
-  const filteredUsers = users.filter(user => 
+  const filteredUsers = users.filter(user =>
     Object.values(user).some(value =>
       String(value).toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -81,8 +149,61 @@ const Users = () => {
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
+
+  //initial render for loading users
+  useEffect(()=>{
+    const fetchUsers = async ()=>{  
+      const users = await getAllUser(user.accessToken);
+      if(users?.status===200){
+        setUsers(users.data)
+      }else if (users?.status===403){        
+        const newToken = await getAccessToken();
+        if(newToken?.status==200){
+          setUser(newToken.data);
+          const users = await getAllUser(newToken.data.accessToken);
+          if(users?.status===200){
+            setUsers(users.data)
+          }
+        }else if(newToken.status===403){
+          setUser(null);
+        }
+      }
+  
+     
+      
+    }
+
+    fetchUsers();
+  },[])
+
   return (
     <div className="p-6 bg-white-900 min-h-screen text-white">
+
+      {deletingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <p className="mb-4">Are you sure you want to delete this user?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => {
+                  handleDelete(deletingUser);
+                  setDeletingUser(null);
+                }}
+                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setDeletingUser(null)}
+                className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-indigo-400">Users Management</h1>
@@ -123,40 +244,38 @@ const Users = () => {
             </thead>
             <tbody className="divide-y divide-gray-800">
               {currentUsers.map((user) => (
-                <tr 
-                  key={user.id} 
+                <tr
+                  key={user._id}
                   className="hover:bg-gray-800 hover:text-white transition-colors group"
                 >
-                  <td className="px-6 py-4 group-hover:text-white text-black">{user.firstName}</td>
-                  <td className="px-6 py-4 group-hover:text-white text-black">{user.lastName}</td>
+                  <td className="px-6 py-4 group-hover:text-white text-black">{user.firstname}</td>
+                  <td className="px-6 py-4 group-hover:text-white text-black">{user.lastname}</td>
                   <td className="px-6 py-4 group-hover:text-white text-black">{user.email}</td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-sm ${
-                      user.deletionRequest === 'Pending' 
-                        ? 'bg-yellow-500/20 text-yellow-500' 
-                        : 'bg-green-500/20 text-green-500'
-                    }`}>
-                      {user.deletionRequest}
+                    <span className={`px-2 py-1 rounded-full text-sm ${user.deletionRequest
+                        ? 'bg-green-500/20 text-green-500'
+                        : 'bg-yellow-500/20 text-yellow-500'
+                      }`}>
+                      {user.deletionRequest?"True":"False"}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-sm ${
-                      user.docStatus === 'Complete' 
-                        ? 'bg-green-500/20 text-green-500' 
+                    <span className={`px-2 py-1 rounded-full text-sm ${user.verificationStatus === 'verified'
+                        ? 'bg-green-500/20 text-green-500' : user.verificationStatus === 'pending'? 'bg-yellow-500/20 text-yellow-500'
                         : 'bg-red-500/20 text-red-500'
-                    }`}>
-                      {user.docStatus}
+                      }`}>
+                      {user.verificationStatus}
                     </span>
                   </td>
                   <td className="px-6 py-4 flex space-x-3">
-                    <Link 
-                      to={`/users/edit/${user.id}`}
+                    <Link
+                      to={`/users/edit/${user._id}`}
                       className="text-indigo-400 hover:text-indigo-300 transition-colors"
                     >
                       Edit
                     </Link>
                     <button
-                      onClick={() => handleDelete(user.id)}
+                      onClick={() => setDeletingUser(user._id)}  // Updated this line
                       className="text-red-400 hover:text-red-300 transition-colors"
                     >
                       Delete
@@ -173,7 +292,7 @@ const Users = () => {
             Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} entries
           </span>
           <div className="flex space-x-2">
-            <button 
+            <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
               className="px-3 py-1 rounded bg-gray-800 text-gray-400 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -183,7 +302,7 @@ const Users = () => {
             <button className="px-3 py-1 rounded bg-indigo-600 text-white">
               {currentPage}
             </button>
-            <button 
+            <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage >= totalPages}
               className="px-3 py-1 rounded bg-gray-800 text-gray-400 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"

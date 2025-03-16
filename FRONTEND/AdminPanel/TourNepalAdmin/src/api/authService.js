@@ -50,7 +50,7 @@ export const getContacts = async ()=>{
 
 export const editContact = async (id,editValues,token)=>{
     try{
-        const response = await baseUrl.put('/admin/editcontact',{id,editValues,},
+        const response = await baseUrl.put('/admin/editcontact',{id,editValues},
         {
             headers:{'Authorization':`Bearer ${token}`},
             withCredentials:true
@@ -146,5 +146,89 @@ export const deleteReview = async (reviewid,locationid,token)=>{
             return e.response;
         }
         return null;
+    }
+}
+
+export const addUser = async (formdata,token)=>{
+    try{
+
+        const response = await baseUrl.post('/admin/users/adduser',formdata,{
+            withCredentials:true,
+            headers:{'Authorization':`Bearer ${token}`}
+        })
+
+        return response
+
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
+export const getAllUser = async (token)=>{
+    try{
+        const response = await baseUrl.get('/admin/users',{
+            withCredentials:true,
+            headers:{'Authorization':`Bearer ${token}`}
+        })
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
+export const getUserById = async (id,token)=>{
+    try{
+        const response = await baseUrl.get(`/admin/users/${id}`,
+        {
+            withCredentials:true,
+            headers:{'Authorization':`Bearer ${token}`}
+        }
+        )
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
+export const editUser = async (id,formdata,token)=>{
+    const {_id,visaStamp,passportCopy,password, ...otherDetails} = formdata
+    console.log(otherDetails);
+    
+    try{
+        const response = await baseUrl.put(`/admin/users/${id}`,{user:otherDetails},{
+            withCredentials:true,
+            headers:{'Authorization':`Bearer ${token}`}
+        })
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
+export const deleteUser = async (id,requestType,token)=>{
+    try{
+        const response = await baseUrl.delete(`/admin/users/${id}`,{
+            data:{requestType},
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        })
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
     }
 }

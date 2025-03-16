@@ -23,7 +23,7 @@ const login = async (req, res) => {
             },
             },
             process.env.ACCESS_SECRET_TOKEN_ADMIN,
-            {expiresIn:'1d'}
+            {expiresIn:'10s'}
       
         );
 

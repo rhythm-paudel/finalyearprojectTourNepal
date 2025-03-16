@@ -1,24 +1,29 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { deleteUser, editUser, getUserById as gubi } from '../api/authService';
+import AuthContext from '../context/AuthProvider';
+import { getAccessToken } from '../api/authService';
 
 const EditUser = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
+
+  const {user:authUser,setUser:setAuthUser} = useContext(AuthContext);
   
   // Static user data as of now
   const [user, setUser] = useState({
-    id: 1,
-    firstName: 'John',
-    lastName: 'Doe',
+    _id: 1,
+    firstname: 'John',
+    lastname: 'Doe',
     email: 'john@example.com',
     dateOfBirth: '1990-01-01',
     nationality: 'American',
     dateOfEntry: '2023-01-01',
-    indentedDaysOfStays: 30,
-    deletionRequest: 'Pending',
-    docStatus: 'Pending',
-    visaCopy: 'https://via.placeholder.com/150',
-    passportCopy: 'https://via.placeholder.com/150'
+    intendedDays: 30,
+    deletionRequest: false,
+    verificationStatus: 'pending',
+    visaStamp: 'd',
+    passportCopy: 'd'
   });
 
   // Handle form field changes
@@ -29,19 +34,80 @@ const EditUser = () => {
 
   // Handle document approval
   const handleDocApproval = (status) => {
-    setUser(prev => ({ ...prev, docStatus: status }));
+    setUser(prev => ({ ...prev, verificationStatus: status }));
   };
 
   // Handle deletion
-  const handleDeletionDecision = (decision) => {
+  const handleDeletionDecision =async (decision) => {
+    const response = await deleteUser(user._id,decision,authUser.accessToken);
+    if(response?.status===200){
+      navigate('/users');
+    }else if(response?.status===202){
+      //will show popup saying request rejected
+      window.alert('Deletion request rejected');
+    }else if(response?.status===403){
+      const newToken = await getAccessToken();
+      if(newToken?.status==200){
+        setAuthUser(newToken.data);
+        const response = await deleteUser(user._id,decision,newToken.data.accessToken);
+        if(response?.status===200){
+          navigate('/users');
+        }else if(response?.status===202){
+          //will show popup saying request rejected
+          window.alert('Deletion request rejected');
+        }
+      }else if(newToken.status===403){
+        setAuthUser(null);
+      }
+    }
     setUser(prev => ({ ...prev, deletionRequest: decision }));
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    navigate('/users');
+    const response = await editUser(user._id,user,authUser.accessToken);
+    if(response?.status===200){
+      navigate('/users');
+    }else if(response?.status===403){
+      const newToken = await getAccessToken();
+      if(newToken?.status==200){
+        setAuthUser(newToken.data);
+        const response = await editUser(user._id,user,newToken.data.accessToken);
+        if(response?.status===200){
+          navigate('/users');
+        }
+      }else if(newToken.status===403){
+        setAuthUser(null);
+      }
+    }
+   
   };
+
+  //initial rendering
+  useEffect(()=>{
+    const getUserById = async ()=>{
+      const getUser = await gubi(userId,authUser.accessToken);
+      if(getUser.status===200){
+          setUser(getUser.data.result);
+      }else if(getUser.status===403){
+        const newToken = await getAccessToken();
+        if(newToken.status === 200){
+          setAuthUser(newToken.data);
+          const getUser = await gubi(userId,newToken.data.accessToken);
+          if(getUser.status===200){
+            setUser(getUser.data.result);
+          }
+        }else if(newToken.status===403){
+          setAuthUser(null);
+        }
+      }
+      else{
+        console.log(getUser.status)
+      }
+    }
+    getUserById();
+  },[])
 
   return (
     <div className="p-6 bg-white-900 min-h-screen text-white">
@@ -62,8 +128,8 @@ const EditUser = () => {
                 <label className="block text-sm font-medium mb-2">First Name</label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={user.firstName}
+                  name="firstname"
+                  value={user.firstname}
                   onChange={handleChange}
                   className="w-full bg-gray-700 text-white px-4 py-2 rounded"
                   required
@@ -73,8 +139,8 @@ const EditUser = () => {
                 <label className="block text-sm font-medium mb-2">Last Name</label>
                 <input
                   type="text"
-                  name="lastName"
-                  value={user.lastName}
+                  name="lastname"
+                  value={user.lastname}
                   onChange={handleChange}
                   className="w-full bg-gray-700 text-white px-4 py-2 rounded"
                   required
@@ -126,8 +192,8 @@ const EditUser = () => {
                 <label className="block text-sm font-medium mb-2">Indented Days of Stays</label>
                 <input
                   type="number"
-                  name="indentedDaysOfStays"
-                  value={user.indentedDaysOfStays}
+                  name="intendedDays"
+                  value={user.intendedDays}
                   onChange={handleChange}
                   className="w-full bg-gray-700 text-white px-4 py-2 rounded"
                   min="1"
@@ -143,7 +209,7 @@ const EditUser = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <h3 className="text-sm font-medium mb-2">Visa Copy</h3>
-                <img src={user.visaCopy} alt="Visa" className="w-full h-48 object-contain rounded" />
+                <img src={user.visaStamp} alt="Visa" className="w-full h-48 object-contain rounded" />
               </div>
               <div>
                 <h3 className="text-sm font-medium mb-2">Passport Copy</h3>
@@ -153,40 +219,18 @@ const EditUser = () => {
             <div className="flex items-center space-x-4">
               <span className="text-sm font-medium">Document Status:</span>
               <select
-                value={user.docStatus}
+                value={user.verificationStatus}
                 onChange={(e) => handleDocApproval(e.target.value)}
                 className="bg-gray-700 text-white px-4 py-2 rounded"
               >
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
+                <option value="pending">Pending</option>
+                <option value="verified">Verified</option>
+                <option value="rejected">Rejected</option>
               </select>
             </div>
           </div>
 
-          {/* Deletion Request Section */}
-          {user.deletionRequest === 'Pending' && (
-            <div className="bg-gray-800 p-6 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4 text-indigo-400">Deletion Request</h2>
-              <div className="flex items-center space-x-4">
-                <button
-                  type="button"
-                  onClick={() => handleDeletionDecision('Approved')}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-                >
-                  Approve Deletion
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDeletionDecision('Rejected')}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
-                >
-                  Reject Deletion
-                </button>
-              </div>
-            </div>
-          )}
-
+          
           {/* Form Actions */}
           <div className="flex justify-end space-x-4">
             <button
@@ -197,6 +241,30 @@ const EditUser = () => {
             </button>
           </div>
         </form>
+        <br/>
+        {/* Deletion Request Section */}
+        {user.deletionRequest&& (
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <h2 className="text-xl font-semibold mb-4 text-indigo-400">Deletion Request</h2>
+              <div className="flex items-center space-x-4">
+                <button
+                  type="button"
+                  onClick={() => handleDeletionDecision(true)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                >
+                  Approve Deletion
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeletionDecision(false)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                >
+                  Reject Deletion
+                </button>
+              </div>
+            </div>
+          )}
+
       </div>
     </div>
   );
