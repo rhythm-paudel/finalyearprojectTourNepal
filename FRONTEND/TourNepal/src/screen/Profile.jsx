@@ -100,7 +100,7 @@ const Profile = () => {
               Alert.alert('Deletion Request Successful', 'Your account will be reviewed for deletion process.');
              
             } else {
-              console.log(response.data);
+
               
               Alert.alert('Something went wrong');
             }

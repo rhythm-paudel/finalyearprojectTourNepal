@@ -1,5 +1,7 @@
 import baseUrl from "./baseUrl";
 
+
+//authentication
 export const loginAdmin = async (username,password) => {
     try{
         const response = await baseUrl.post("/admin/login",
@@ -35,6 +37,8 @@ export const refreshToken = async () => {
     }
 }
 
+
+//contacts 
 export const getContacts = async ()=>{
     try{
         const response = await baseUrl.get("/emergencycontacts")
@@ -116,6 +120,7 @@ export const getAccessToken = async ()=>{
     }
 }
 
+//reviews
 export const getReviews = async (token)=>{
     try{
         const response = await baseUrl.get("/admin/reviews/getreviews",{
@@ -148,6 +153,8 @@ export const deleteReview = async (reviewid,locationid,token)=>{
         return null;
     }
 }
+
+//users
 
 export const addUser = async (formdata,token)=>{
     try{

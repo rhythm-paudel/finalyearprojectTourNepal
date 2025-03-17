@@ -14,12 +14,49 @@ import {PermissionsAndroid} from 'react-native';
 import RootNavigator from './src/navigations/RootNavigator';
 import AuthenticationProvider from './src/context/AuthenticationProvider';
 import { AuthServices } from './src/context/AuthServices';
-import messaging from '@react-native-firebase/messaging';
-import { androidNotificationToken } from './src/utils/userActions';
 
+import notifee, { AndroidImportance } from '@notifee/react-native';
+import messaging from '@react-native-firebase/messaging';
 
 const App = () => {
-  
+
+  useEffect(() => {
+    const initializeNotifee = async () => {
+      // Create a notification channel
+      await notifee.createChannel({
+        id: 'default',
+        name: 'Default Channel',
+        importance: AndroidImportance.HIGH,
+      });
+
+      // Listen for foreground events
+      notifee.onForegroundEvent(({ type, detail }) => {
+        if (type === 'press') {
+          console.log('User pressed the notification:', detail.notification);
+        } else if (type === 'display') {
+          console.log('Notification displayed:', detail.notification);
+        }
+      });
+
+      // Listen for Firebase foreground messages
+      messaging().onMessage(async remoteMessage => {
+        console.log('Received message:', remoteMessage);
+        const { title, body } = remoteMessage.notification;
+
+        // Display the notification using Notifee
+        await notifee.displayNotification({
+          title: title,
+          body: body,
+          android: {
+            channelId: 'default',
+            importance: AndroidImportance.HIGH,
+          },
+        });
+      });
+    };
+
+    initializeNotifee();
+  }, []);
   
   
   return (

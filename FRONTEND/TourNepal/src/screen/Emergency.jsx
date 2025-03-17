@@ -25,7 +25,7 @@ const Emergency = () => {
       if(response?.status===200){
         setContacts(response.data);
       setFilteredContacts(response.data);
-        console.log(response.data);
+
         
       }else{
         setErrMessage("No Emergency contacts found")

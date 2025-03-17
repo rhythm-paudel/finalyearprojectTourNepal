@@ -263,7 +263,7 @@ export const  updateTokenNotification = async(notificationToken,token)=>{
             headers:{'Authorization':`Bearer ${token}`},
             withCredentials:true
         })
-        console.log(response);
+
         return response
     }catch(e){
         if(e.response){
