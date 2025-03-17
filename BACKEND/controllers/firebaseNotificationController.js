@@ -17,45 +17,36 @@ const sendNotifications = async(req, res) => {
     }
     
     // For multiple devices
-    if(tokens.length > 1) {
-      const messages = tokens.map(token => ({
-        notification: {
-          title: title,
-          body: body
-        },
-        token: token
-      }));
-      
-      const batchResponse = await admin.messaging().sendAll(messages);
-      console.log(`${batchResponse.successCount} messages were sent successfully`);
-      
-      if(batchResponse.failureCount > 0) {
-        console.log('List of failures:', batchResponse.responses.filter(resp => !resp.success));
+    let successCount = 0;
+    let failureCount = 0;
+    const failures = [];
+
+    for (const token of tokens) {
+      try {
+        const message = {
+          notification: {
+            title: title,
+            body: body
+          },
+          token: token
+        };
+
+        const response = await admin.messaging().send(message);
+        console.log("Sent successfully to", token, response);
+        successCount++;
+      } catch (e) {
+        console.error("Failed to send to", token, e);
+        failureCount++;
+        failures.push({ token, error: e.message });
       }
-      
-      return res.status(200).send({
-        success: batchResponse.successCount,
-        failure: batchResponse.failureCount
-      });
-    } 
-    // For a single device
-    else {
-      const message = {
-        notification: {
-          title: title,
-          body: body
-        },
-        token: tokens[0]
-      };
-      
-      const response = await admin.messaging().send(message);
-      console.log("Sent successfully", response);
-      
-      return res.status(200).send({
-        success: 1,
-        response: response
-      });
     }
+
+    return res.status(200).send({
+      success: successCount,
+      failure: failureCount,
+      failures: failures
+    });
+    
   } catch(e) {
     console.error("Error sending notifications:", e);
     res.status(500).send("Error sending notifications");
