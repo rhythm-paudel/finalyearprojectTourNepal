@@ -59,18 +59,20 @@ const AuthenticationProvider = ({children}) => {
 
   //function for getting user details 
   const getUserDetail = async ()=>{
+
     let encryptedToken =await getToken();
     const response = await fetchUserDetails(encryptedToken.accessToken);
     if(response?.status===403){ //if the current access token is expired
 
-        const accessToken = await getAccessToken(); //requesting new accessToken
+        const accessToken = await refreshToken(encryptedToken.encryptedToken); //requesting new accessToken
         if(accessToken?.status===200){
+         
             storeTokens(accessToken.data.accessToken,encryptedToken.encryptedToken);
             encryptedToken = await getToken();
             const newResponse = await fetchUserDetails(encryptedToken.accessToken); //re-requesting user details
             return newResponse;
         }else{ //incase if the refresh token is also expired
-      
+
             return response;
         }
     }
@@ -87,7 +89,7 @@ const AuthenticationProvider = ({children}) => {
       setIsLoading(true);
       try{
         const tokens = await getToken();
-
+        
         if (tokens && tokens.encryptedToken && tokens.accessToken) {
           const response = await checkUserToken(tokens.encryptedToken); //waiting for response from the backend
 
@@ -105,7 +107,7 @@ const AuthenticationProvider = ({children}) => {
             
             await saveUserLocation();
           }
-          //if the access token is not 200 then everything else is set to false
+          //if the refresh  token is expirted then everything else is set to false and user has to re login
           else {
             setIsAuthenticated(false);
           }

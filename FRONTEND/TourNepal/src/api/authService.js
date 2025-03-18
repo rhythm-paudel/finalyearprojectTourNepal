@@ -104,11 +104,14 @@ export const fetchUserDetails = async (accessToken)=>{
 export const refreshToken = async (refreshToken)=>{
     const REFRESH_TOKEN = '/refresh'
 
+ 
+
     try{
         const response = await baseUrl.post(REFRESH_TOKEN,JSON.stringify({encryptedToken:refreshToken}),{
             headers: { 'Content-Type': 'application/json' },
             withCredentials:true
         })
+
         return response;
     }catch(e){
         if(e.response){
@@ -282,7 +285,7 @@ export const getNotifications = async (token)=>{
             headers:{'Authorization':`Bearer ${token}`},
             withCredentials:true
         })
-        console.log(response.data);
+
         
         return response
     }catch(e){

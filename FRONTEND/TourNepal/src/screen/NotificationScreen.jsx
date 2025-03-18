@@ -2,22 +2,40 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 
 import NotificationCards from '../components/NotificationCards';
-import { getNotifications } from '../api/authService';
-import { getToken } from '../utils/TokenStorage';
+import { getNotifications, refreshToken } from '../api/authService';
+import { getToken, storeTokens } from '../utils/TokenStorage';
+import LoadingAnimation from '../components/LoadingAnimation';
 
 const NotificationScreen = ({isBack}) => {
+
+  const [isLoading, setIsLoading] = useState(true);
 
   //useeffect
 useEffect(()=>{
   const fetchNotifications = async () => {
     const token =await getToken();
     const response = await getNotifications(token.accessToken);
-    console.log(token);
+
     
-    console.log(response?.data);
+    console.log(response?.status);
     if(response?.status===200){
       setNotifications(response?.data.notifications);
+      setIsLoading(false);
+    }else if(response?.status===403){
+      setIsLoading(true);
+      const newToken =await refreshToken(token.encryptedToken);
+      if (newToken?.status === 200) {
+        storeTokens(newToken.data.accessToken, token.encryptedToken);
+        const response = await getNotifications(newToken.data.accessToken);
+        if(response?.status===200){
+          setNotifications(response?.data.notifications);
+          setIsLoading(false);
+        }
+      }
+
     }
+
+    setIsLoading(false);
     
   }
   fetchNotifications();
@@ -25,10 +43,7 @@ useEffect(()=>{
 
 
   const [notifications,setNotifications] =useState( [ //retreiving list of notifications (static as of now)
-    { title: 1, messagetype: 'Alert', message: 'Flood near Thankot area'},
-    { title: 2, messagetype: 'Information', message: 'Your profile has been successfully verified'},
-    { title: 3, messagetype: 'Alert', message: 'Flood near Thankot area'},
-    { title: 4, messagetype: 'Information', message: 'Your profile has been successfully verified'},
+   
   ]);
 
   const renderNotifications = () => { //component for retrieving notifications
@@ -43,7 +58,8 @@ useEffect(()=>{
       {/* Notification Section */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Notifications</Text>
-        {renderNotifications()}
+        {isLoading ? <LoadingAnimation message="Loading Notifications"/>:
+        renderNotifications()}
       </ScrollView>
     </View>
   );

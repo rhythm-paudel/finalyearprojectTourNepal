@@ -89,7 +89,7 @@ export const editComment = async(location,editedReview,commentID)=>{
 
 export const deleteComment = async(location,commentID)=>{
   const accessToken =await getToken();
-  console.log(accessToken.accessToken);
+
   
   const [longitude,latitude] = location.split(',')
   const formattedJson = {

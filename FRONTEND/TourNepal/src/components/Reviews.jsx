@@ -5,6 +5,8 @@ import { TextInput } from 'react-native-paper';
 import { useContext } from 'react';
 import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
 import { editComment, deleteComment } from '../utils/nearbyPlaces';
+import { refreshToken } from '../api/authService';
+import { getToken,storeTokens } from '../utils/TokenStorage';
 
 
 const Reviews = ({ review, location, removeComment }) => {
@@ -14,9 +16,10 @@ const Reviews = ({ review, location, removeComment }) => {
   const [isEditable, setIsEditable] = useState(false);
  
   
-  const { currUser } = useContext(AuthenticationProviderContext) //for checking if the user can edit or delete the review
+  const { currUser,setCurrUser } = useContext(AuthenticationProviderContext) //for checking if the user can edit or delete the review
 
   const handleEdit = async () => {
+    let encryptedToken = await getToken();
     if (isEditable) {
        Alert.alert(
         'Save Changes',
@@ -44,7 +47,30 @@ const Reviews = ({ review, location, removeComment }) => {
                   Alert.alert('Empty Fields', 'Your review had missing fields');
                 } else if (updatedReviewResponse.status === 404) {
                   Alert.alert('Review Not Found', 'The review you are trying to edit does not exist');
-                } else {
+                }else if (updatedReviewResponse.status === 403) {
+                 
+                  const newToken =await refreshToken(encryptedToken.encryptedToken);
+                  if (newToken?.status === 200) {
+                 
+                    storeTokens(newToken.data.accessToken, encryptedToken.encryptedToken);
+                    encryptedToken = await getToken();
+                   
+                    const updatedReviewResponse = await editComment(location, editedReview, review._id);
+              
+                    
+                    if (updatedReviewResponse.status === 200) {
+                
+                      Alert.alert('Edited Successfully', 'Your review has been edited successfully');
+                      review.text = editedReview;
+                      setIsEditable(false);
+                      setInitialReview(editedReview);
+                    }else{
+                      Alert.alert('Something went wrong');
+                    }
+                    
+                  }
+                }
+                 else {
                   Alert.alert('Something went wrong');
                 }
 
@@ -70,6 +96,7 @@ const Reviews = ({ review, location, removeComment }) => {
   }
 
   const handleDelete = async () => {
+    let encryptedToken = await getToken();
     Alert.alert(
       'Delete Comment',
       'Are you sure you want to delete your comment',
@@ -85,6 +112,23 @@ const Reviews = ({ review, location, removeComment }) => {
             if (response.status === 200) {
               Alert.alert('Deleted Successfully', 'Your review has been deleted successfully');
               removeComment(review._id);
+            }else if(response?.status===403){
+        
+              const newToken =await refreshToken(encryptedToken.encryptedToken);
+           
+              if (newToken?.status === 200) {
+                storeTokens(newToken.data.accessToken, encryptedToken.encryptedToken);
+                encryptedToken = await getToken();
+                const response = await deleteComment(location, review._id)
+                if (response.status === 200) {
+                  Alert.alert('Deleted Successfully', 'Your review has been deleted successfully');
+                  removeComment(review._id);
+                }else{
+                  Alert.alert('Something went wrong');
+                }
+              }else{
+          
+              }
             } else if (response.status === 404) {
               Alert.alert('Review Not Found', 'The review you are trying to delete does not exist');
             } else {

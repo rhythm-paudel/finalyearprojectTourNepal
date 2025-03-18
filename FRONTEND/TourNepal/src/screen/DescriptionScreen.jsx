@@ -7,7 +7,8 @@ import { AuthenticationProviderContext } from '../context/AuthenticationProvider
 import { addComment, getReviews } from '../utils/nearbyPlaces';
 import Reviews from '../components/Reviews';
 import { AuthCheck } from '../context/AuthServices';
-import { storeTokens, getToken, refreshToken } from '../utils/TokenStorage';
+import { storeTokens, getToken } from '../utils/TokenStorage';
+import { refreshToken } from '../api/authService';
 
 const DescriptionScreen = () => {
   const [comment, setComment] = useState('');
@@ -50,6 +51,7 @@ const DescriptionScreen = () => {
   }, [reviews.length]);
 
   const handleComment = async () => {
+    let encryptedToken =await getToken();
     Alert.alert(
       'Add a review',
       'Confirm your review before posting',
@@ -70,7 +72,29 @@ const DescriptionScreen = () => {
                 "firstname": response.data.review.firstname, "lastname": response.data.review.lastname
               }
               setReviews(prevState => [...prevState, newReview]);
-            } else if (response?.status === 400) {
+            }else if(response?.status === 403){ //in case of access token expirattion
+
+              const newToken =await refreshToken(encryptedToken.encryptedToken);
+              if (newToken?.status === 200) {
+                storeTokens(newToken.data.accessToken, encryptedToken.encryptedToken);
+                encryptedToken = await getToken();
+                const response = await addComment(comment, place.id,place.name);
+                if (response?.status === 201) {
+                  Alert.alert('Success', 'Comment was added successfully.');
+                  const newReview = {
+                    "_id": response.data.review.commentID, "date": response.data.review.date,
+                    "text": response.data.review.text, "email": response.data.review.email,
+                    "firstname": response.data.review.firstname, "lastname": response.data.review.lastname
+                  }
+                  setReviews(prevState => [...prevState, newReview]);
+                }else{
+                  Alert.alert('Something went wrong');
+                }
+              }else{
+                
+              }  
+            }
+            else if (response?.status === 400) {
               Alert.alert('Empty Comment', 'Please provide a valid comment');
             }
 
