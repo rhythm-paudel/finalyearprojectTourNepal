@@ -239,3 +239,42 @@ export const deleteUser = async (id,requestType,token)=>{
         return null
     }
 }
+
+//notifications
+export const getNotificationTokens = async (token) => {
+    try {
+      const response = await baseUrl.get('/admin//users/getNotificationTokens', {
+        withCredentials: true,
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      return response;
+    } catch (e) {
+      if (e.response) {
+        return e.response;
+      }
+      return null;
+    }
+}
+
+export const sendNotifications = async (notificationData, token) => {
+
+    try{
+        console.log(notificationData);
+        
+        const tokens = notificationData.tokens;
+        const title = notificationData.title;
+        const body = notificationData.body;
+        const messagetype = notificationData.messagetype;   
+
+        const response = await baseUrl.post('/send-notification',{tokens,title,body,messagetype},{
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        })
+        return response
+    }catch(e){
+        if (e.response) {
+            return e.response;
+          }
+          return null;
+    }
+};

@@ -88,7 +88,7 @@ const Reviews = ({ review, location, removeComment }) => {
             } else if (response.status === 404) {
               Alert.alert('Review Not Found', 'The review you are trying to delete does not exist');
             } else {
-              console.log(response?.status);
+
               Alert.alert('Something went wrong');
             }
           },

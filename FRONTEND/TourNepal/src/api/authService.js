@@ -274,3 +274,21 @@ export const  updateTokenNotification = async(notificationToken,token)=>{
 };
 
 
+export const getNotifications = async (token)=>{
+    const GET_NOTIFICATIONS = "/userDetail/getNotifications"
+
+    try{
+        const response = await baseUrl.get(GET_NOTIFICATIONS,{
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        })
+        console.log(response.data);
+        
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}

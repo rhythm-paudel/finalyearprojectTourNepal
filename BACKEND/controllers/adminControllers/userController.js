@@ -1,5 +1,6 @@
 const User = require("../../model/User");
 const bcrypt = require("bcrypt");
+const { sendNotifications } = require("../firebaseNotificationController");
 
 const userController = {
   addUser: async (req, res) => {
@@ -52,7 +53,8 @@ const userController = {
         nationality: nationality,
         intendedDays: intendedDays,
         deletionRequest: false,
-        notificationToken:""
+        notificationToken:"",
+        notificationList:[],
       });
       console.log(result);
       res.status(201).json({ success: `New user ${firstname} created!` });
@@ -154,6 +156,19 @@ const userController = {
         res.json({result})
     }catch{
         res.sendStatus(500)
+    }
+  },
+
+  getNotificationTokens: async (req,res)=>{
+    try {
+      const result = await User.find()
+      if(!result) return res.sendStatus(404);
+      const tokens = result
+        .filter(user => user.notificationToken && user.notificationToken.trim() !== '')
+        .map(user => ({token: user.notificationToken, email: user.email}));
+      res.status(200).json({tokens})
+    } catch(e) {
+      res.sendStatus(500)
     }
   }
 };

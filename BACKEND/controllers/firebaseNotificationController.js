@@ -1,5 +1,6 @@
 const admin = require('firebase-admin');
 const serviceAccount = require('../serviceAccountKey.json');
+const User = require('../model/User');
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -9,19 +10,21 @@ if (!admin.apps.length) {
 
 const sendNotifications = async(req, res) => {
   try {
-    const {tokens, title, body} = req.body;
+    const {tokens, title, body, messagetype} = req.body;
     
     // Check if tokens is an array and if title and body are provided
     if(!tokens || !Array.isArray(tokens) || tokens.length === 0 || !title || !body) {
       return res.status(400).send("Invalid request: tokens array, title, and body are required");
     }
     
+
     // For multiple devices
     let successCount = 0;
     let failureCount = 0;
     const failures = [];
 
-    for (const token of tokens) {
+    for (const user of tokens) {
+      const { token, email } = user;   
       try {
         const message = {
           notification: {
@@ -32,8 +35,20 @@ const sendNotifications = async(req, res) => {
         };
 
         const response = await admin.messaging().send(message);
+        const notificationMessage = `${title}: ${body}`;
+        const notificationObject = {
+          title: title,
+          message: body,
+          messagetype: messagetype // Include the type of the message (e.g., 'info', 'alert', etc.)
+        };
         console.log("Sent successfully to", token, response);
         successCount++;
+        await User.findOneAndUpdate(
+          {email},
+          { $push: { notificationList: notificationObject } },
+          { new: true }
+        
+        )
       } catch (e) {
         console.error("Failed to send to", token, e);
         failureCount++;

@@ -8,5 +8,7 @@ router.route('/')
 
 
 router.route('/updateUser').put(usersController.updateUser)
+
+router.route('/getNotifications').get(usersController.getNotifications)
     
 module.exports = router;

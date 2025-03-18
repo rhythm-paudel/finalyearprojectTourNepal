@@ -7,9 +7,9 @@ const NotificationCards = ({notification}) => {
   return (
     <View
         key={notification.id}
-        style={[styles.notificationCard, { backgroundColor: notification.type==='Alert'?alertColor:infoColor }]} // To determine the color of the body of notification for clarification
+        style={[styles.notificationCard, { backgroundColor: notification.messagetype==='Alert'?alertColor:infoColor }]} // To determine the color of the body of notification for clarification
       >
-        <Text style={styles.notificationType}>{notification.type}!!!</Text>
+        <Text style={styles.notificationType}>{notification.title}!!!</Text>
         <Text style={styles.notificationMessage}>{notification.message}</Text>
       </View>
   )

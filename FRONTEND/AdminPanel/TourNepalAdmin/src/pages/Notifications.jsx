@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { getAccessToken, getNotificationTokens, sendNotifications } from '../api/authService';
+import AuthContext from '../context/AuthProvider';
 
 const Notifications = () => {
+
+  const {user,setUser} = useContext(AuthContext)
   // Static users for demonstration
   const [users] = useState([
     { email: 'john@example.com', name: 'John Doe' },
@@ -12,28 +16,89 @@ const Notifications = () => {
     title: '',
     body: '',
     recipientType: 'all', // 'all' or 'specific' for mobile users
-    specificUser: ''
+    specificUser: '',
+    messageType: 'Information'
   });
 
-  const handleSendNotification = () => {
+  const [userTokens,setUserTokens] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const handleSendNotification =async () => {
+
+    
     if (!formState.title || !formState.body) {
       alert('Please fill in both title and body');
       return;
     }
 
+
+    const recipient = formState.recipientType === 'all' 
+      ? 'all' 
+      : selectedUser;
+
     //body for sending the notification data
     const notificationData = {
       title: formState.title,
       body: formState.body,
-      recipient: formState.recipientType === 'all' 
-        ? 'all' 
-        : formState.specificUser
+      tokens: selectedUser,
+      messagetype: formState.messageType // Added message type to payload
     };
+    const response = await sendNotifications(notificationData,user.accessToken);
+    if(response?.status===200){
+      alert('Notification sent successfully!');
+    }else if(response?.status===403){
+      console.log("getting new");
+      
+      const newToken = await getAccessToken();
+      if(newToken?.status==200){
+        setUser(newToken.data);
+        const response = await sendNotifications(notificationData,newToken.data.accessToken);
+        if(response?.status===200){
+          alert('Notification sent successfully!');
+        }
+      }else if(newToken.status===403){
+        setUser(null);
+      }
+    }
+    else{
+      alert("Some error occured")
+    }
 
-    console.log('Sending notification:', notificationData);
-    setFormState({ title: '', body: '', recipientType: 'all', specificUser: '' });
-    alert('Notification sent successfully!');
+    setFormState({ title: '', body: '', recipientType: 'all', specificUser: '', messageType: 'Information' });
+
   };
+
+  
+
+  useEffect(() => {
+    const getNotiTokens = async () => {
+      const notiTokes = await getNotificationTokens(user.accessToken);
+
+      if(notiTokes?.status===200){
+        setUserTokens(notiTokes?.data.tokens);
+        setSelectedUser(notiTokes?.data.tokens);
+      }else if(notiTokes?.status===403){
+        const newToken = await getAccessToken();
+        if(newToken?.status==200){
+          setUser(newToken.data);
+          const notiTokes = await getNotificationTokens(newToken.data.accessToken);
+          if(notiTokes?.status===200){
+            setUserTokens(notiTokes?.data.tokens);
+            setSelectedUser(notiTokes?.data.tokens);
+          }
+        }else if(newToken.status===403){
+          setUser(null);
+        }
+      }
+    }
+
+    getNotiTokens();
+  },[]);
+
+  useEffect(() => {
+    if (formState.recipientType === 'all') {
+      setSelectedUser(userTokens);
+    }
+  }, [formState.recipientType, userTokens]);
 
   return (
     <div className="p-6 bg-white-900 min-h-screen text-white">
@@ -50,7 +115,7 @@ const Notifications = () => {
               placeholder="Notification Title"
               className="bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={formState.title}
-              onChange={(e) => setFormState({ ...formState, title: e.target.value })}
+              onChange={(e) => {setFormState({ ...formState, title: e.target.value });}}
             />
             <textarea
               placeholder="Notification Body"
@@ -59,6 +124,30 @@ const Notifications = () => {
               onChange={(e) => setFormState({ ...formState, body: e.target.value })}
               rows="3"
             />
+
+            {/* Added message type selection */}
+            <div className="flex items-center gap-4 mb-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="messageType"
+                  value="Alert"
+                  checked={formState.messageType === 'Alert'}
+                  onChange={(e) => setFormState({ ...formState, messageType: e.target.value })}
+                />
+                Alert
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="messageType"
+                  value="Information"
+                  checked={formState.messageType === 'Information'}
+                  onChange={(e) => setFormState({ ...formState, messageType: e.target.value })}
+                />
+                Information
+              </label>
+            </div>
           </div>
 
           <div className="flex items-center gap-4 mb-4">
@@ -67,7 +156,7 @@ const Notifications = () => {
                 type="radio"
                 name="recipientType"
                 checked={formState.recipientType === 'all'}
-                onChange={() => setFormState({ ...formState, recipientType: 'all' })}
+                onChange={() => {setFormState({ ...formState, recipientType: 'all' }); setSelectedUser(userTokens)}}
               />
               Send to All Users
             </label>
@@ -87,12 +176,16 @@ const Notifications = () => {
             <select
               className="bg-gray-700 text-white px-4 py-2 rounded-lg w-full mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={formState.specificUser}
-              onChange={(e) => setFormState({ ...formState, specificUser: e.target.value })}
+              onChange={(e) => {setFormState({ ...formState, specificUser: e.target.value.email });
+              const selectedUser = JSON.parse(e.target.value);
+      
+              setSelectedUser([selectedUser])}
+              }
             >
               <option value="">Select User</option>
-              {users.map(user => (
-                <option key={user.email} value={user.email}>
-                  {user.name} ({user.email})
+              {userTokens.map(user => (
+                <option key={user.email} value={JSON.stringify(user)}>
+                  ({user.email})
                 </option>
               ))}
             </select>

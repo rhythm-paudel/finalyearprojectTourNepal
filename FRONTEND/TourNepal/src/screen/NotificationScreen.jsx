@@ -1,19 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 
 import NotificationCards from '../components/NotificationCards';
+import { getNotifications } from '../api/authService';
+import { getToken } from '../utils/TokenStorage';
 
 const NotificationScreen = ({isBack}) => {
-  const notifications = [ //retreiving list of notifications (static as of now)
-    { id: 1, type: 'Alert', message: 'Flood near Thankot area'},
-    { id: 2, type: 'Information', message: 'Your profile has been successfully verified'},
-    { id: 3, type: 'Alert', message: 'Flood near Thankot area'},
-    { id: 4, type: 'Information', message: 'Your profile has been successfully verified'},
-  ];
+
+  //useeffect
+useEffect(()=>{
+  const fetchNotifications = async () => {
+    const token =await getToken();
+    const response = await getNotifications(token.accessToken);
+    console.log(token);
+    
+    console.log(response?.data);
+    if(response?.status===200){
+      setNotifications(response?.data.notifications);
+    }
+    
+  }
+  fetchNotifications();
+},[])
+
+
+  const [notifications,setNotifications] =useState( [ //retreiving list of notifications (static as of now)
+    { title: 1, messagetype: 'Alert', message: 'Flood near Thankot area'},
+    { title: 2, messagetype: 'Information', message: 'Your profile has been successfully verified'},
+    { title: 3, messagetype: 'Alert', message: 'Flood near Thankot area'},
+    { title: 4, messagetype: 'Information', message: 'Your profile has been successfully verified'},
+  ]);
 
   const renderNotifications = () => { //component for retrieving notifications
-    return notifications.map((notification) => (
-      <NotificationCards key={notification.id} notification={notification}/>
+    let keyID = 0
+    return notifications.slice(-5).reverse().map((notification) => (
+      <NotificationCards key={keyID++} notification={notification}/>
     ));
   };
 
@@ -26,7 +47,11 @@ const NotificationScreen = ({isBack}) => {
       </ScrollView>
     </View>
   );
+
+  
 };
+
+
 
 export default NotificationScreen;
 

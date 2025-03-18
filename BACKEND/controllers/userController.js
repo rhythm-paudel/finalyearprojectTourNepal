@@ -96,6 +96,20 @@ const updateUser = async (req,res)=>{
     }
 }
 
+const getNotifications = async (req,res)=>{
+    try{
+        const {email} = req
+        const userDB = await User.findOne({ email }).exec();
+
+        if(!userDB) return res.sendStatus(404); //user not found
+
+        const notifications = userDB.notificationList
+        res.status(200).json({notifications})
+    }catch(e){
+        res.sendStatus(500)
+    }
+}
 
 
-module.exports = {getUserDetails,updateUser}
+
+module.exports = {getUserDetails,updateUser,getNotifications}

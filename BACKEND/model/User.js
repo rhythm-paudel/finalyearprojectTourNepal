@@ -52,7 +52,12 @@ const userSchema = new Schema({
     },
     notificationToken: {
         type: String
-    } 
+    },
+    notificationList: {
+        title: { type: String },
+        message: { type: String },
+        messagetype: { type: String }
+      }
     // roles: {
     //     User: {
     //         type: Number,

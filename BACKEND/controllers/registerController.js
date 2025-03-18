@@ -28,7 +28,8 @@ const handleRegister = async (req, res) => {
             "dateOfEntry":dateOfEntry,
             "nationality":nationality,
             "intendedDays":intendedDays,
-            "deletionRequest":false
+            "deletionRequest":false,
+            "notificationList":[]
         });     
 
         console.log(result);

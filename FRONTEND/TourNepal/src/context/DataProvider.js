@@ -24,7 +24,8 @@ export const DataProvider = ({children})=>{
             setCurrUser(details.data); //setting the user session if the token is validated
             const notificationToken = await androidNotificationToken();
             
-
+         
+            
             const response = await updateToken(notificationToken,userData.data.accessToken);
          
             if(response?.status===200){
