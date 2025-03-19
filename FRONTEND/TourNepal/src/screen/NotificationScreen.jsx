@@ -48,9 +48,19 @@ useEffect(()=>{
 
   const renderNotifications = () => { //component for retrieving notifications
     let keyID = 0
-    return notifications.slice(-5).reverse().map((notification) => (
+    if(notifications.length>5){
+      return notifications.slice(-5).reverse().map((notification) => (
       <NotificationCards key={keyID++} notification={notification}/>
     ));
+  }else if(notifications.length>0){
+    return notifications.reverse().map((notification) => (
+      <NotificationCards key={keyID++} notification={notification}/>
+    ));
+  }else{
+    return(
+      <Text>No Notifications to display</Text>
+    )
+  }
   };
 
   return (
