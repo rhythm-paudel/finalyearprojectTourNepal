@@ -39,7 +39,7 @@ const updateUser = async (req,res)=>{
     try{
         const userDB = await User.findOne({ email }).exec();
 
-        if(!userDB) res.sendStatus(404) //user not found
+        if(!userDB) return res.sendStatus(404) //user not found
 
 
         if(updatedEmail&&updatedPassword){
@@ -53,7 +53,19 @@ const updateUser = async (req,res)=>{
             
         }
         if(updatedEmail&&!updatedPassword){
-            
+            const updateEmail = await User.findOneAndUpdate(
+                {email},
+                {
+                    $set:{"email":updatedEmail}
+                },
+                {new:true}
+            )
+            if(!updateEmail){
+                res.status(404).json({message:"User not found"})
+                return
+            }
+            res.status(200).json({message:"User Email Updated"})
+            return
         }
         if(updatedPassword&&!updatedEmail){
             //response = updateUserPassword(updatedPassword)

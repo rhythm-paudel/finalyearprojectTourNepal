@@ -3,6 +3,7 @@ import { getToken as requestToken } from "./TokenStorage";
 import {PermissionsAndroid} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import { updateTokenNotification } from "../api/authService";
+import { updateEmail } from "../api/authService";
 
 export const deleteRequest = async () => {
 
@@ -51,4 +52,10 @@ export const updateToken = async(notificationToken,accessToken)=>{
     const response = await updateTokenNotification(notificationToken,accessToken);
 
     return response;
+}
+
+export const updateUserEmail = async (userEmail)=>{
+  const token = await requestToken();
+  const response = await updateEmail(userEmail,token.accessToken);
+  return response;
 }

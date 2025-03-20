@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { clearToken } from '../utils/TokenStorage';
+import { clearToken, getToken } from '../utils/TokenStorage';
 import { AuthCheck } from '../context/AuthServices';
 import { useNavigation } from '@react-navigation/native';
 import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
@@ -20,7 +20,8 @@ import { ActivityIndicator } from 'react-native-paper';
 
 import { UPLOAD_PRESET, CLOUD_NAME } from '@env';
 import { AuthContext } from '../context/DataProvider';
-import { deleteRequest } from '../utils/userActions';
+import { deleteRequest,updateUserEmail } from '../utils/userActions';
+import { refreshToken } from '../api/authService';
 
 const Profile = () => {
 
@@ -50,6 +51,11 @@ const Profile = () => {
   const { setIsAuthenticated } = useContext(AuthenticationProviderContext);
   const [errMsg, setErrMsg] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);//for re-rendering profile data after data is updated
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   //use effect to fetch the user data from the server
   useEffect(() => {
 
@@ -165,9 +171,30 @@ const Profile = () => {
     }
   }
 
-  const saveEmail = () => {
+  const saveEmail =async () => {
+    let encryptedToken = await getToken();
+    const response = await updateUserEmail(profileData.email);
+    if(response.status===200){
+      Alert.alert('Email Updated', 'Your email has been updated successfully.');
+    }else if(response.status===403){
+      const newToken =await refreshToken(encryptedToken.encryptedToken);
+      if (newToken?.status === 200) {
+        storeTokens(newToken.data.accessToken, encryptedToken.encryptedToken);
+        encryptedToken = await getToken();
+        const response = await updateUserEmail(profileData.email);
+        if(response.status===200){
+          Alert.alert('Email Updated', 'Your email has been updated successfully.');
+        }else{
+          Alert.alert('Something went wrong');
+        }
+      }else{
+        Alert.alert('Something went wrong');
+      }
+    }else{
+      console.log(response?.status)
+    }
     setIsEditingEmail(false);
-    Alert.alert('Email Updated', 'Your email has been updated successfully.');
+  
   };
 
   //handling logout of the user
@@ -271,6 +298,11 @@ const Profile = () => {
     toSave.append('upload_preset', UPLOAD_PRESET);
     return toSave;
 
+  }
+
+  //handling password change
+  const handlePasswordChange = async () => {
+    
   }
 
   //for rendering certain fields according to the visa status of the user. 
@@ -380,6 +412,46 @@ const Profile = () => {
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
+
+        {/* For changing password */}
+        <View style={styles.card}>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Current Password:</Text>
+            <View style={styles.fieldBox}>
+              <TextInput
+                style={styles.input}
+                secureTextEntry
+                value={currentPassword}
+                onChangeText={setCurrentPassword}
+              />
+            </View>
+          </View>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>New Password:</Text>
+            <View style={styles.fieldBox}>
+              <TextInput
+                style={styles.input}
+                secureTextEntry
+                value={newPassword}
+                onChangeText={setNewPassword}
+              />
+            </View>
+          </View>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Confirm Password:</Text>
+            <View style={styles.fieldBox}>
+              <TextInput
+                style={styles.input}
+                secureTextEntry
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+              />
+            </View>
+          </View>
+          <TouchableOpacity style={styles.passwordButton} onPress={handlePasswordChange}>
+            <Text style={styles.passwordButtonText}>Change Password</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );

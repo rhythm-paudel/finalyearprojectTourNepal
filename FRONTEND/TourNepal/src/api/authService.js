@@ -295,3 +295,20 @@ export const getNotifications = async (token)=>{
         return null
     }
 }
+
+export const updateEmail = async (email,token)=>{
+    const UPDATE_EMAIL = "/userDetail/updateUser"
+
+    try{
+        const response = await baseUrl.put(UPDATE_EMAIL,{"updatedEmail":email},{
+            headers:{'Authorization':`Bearer ${token}`},
+            withCredentials:true
+        })
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
