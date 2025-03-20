@@ -148,7 +148,7 @@ const DescriptionScreen = () => {
             <Text style={styles.navigateButtonText}>Navigate</Text>
           </TouchableOpacity>
           <Text style={styles.destinationDescription}>
-            {place.description ? place.description : "Description is not available for restaurants"}
+            {place.description ? place.description : "Description is not available for this place"}
           </Text>
         </View>
 

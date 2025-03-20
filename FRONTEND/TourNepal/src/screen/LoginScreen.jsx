@@ -80,8 +80,10 @@ const LoginScreen = () => {
   const redirectHomescreen = async () => {
 
     setLoading(true);
-    const loggedIn = await login(email, password);
+   
     
+    const loggedIn = await login(email, password);
+
     if (loggedIn?.status===200) {
       setLoading(false);
       setIsAuthenticated(true);

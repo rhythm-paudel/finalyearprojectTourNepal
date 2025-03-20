@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect,useContext } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,135 +15,151 @@ import { useNavigation } from '@react-navigation/native';
 import PlacesList from '../components/PlacesList';
 import { nearbyPlaces } from '../utils/nearbyPlaces';
 import LoadingAnimation from '../components/LoadingAnimation';
-import {AuthenticationProviderContext} from '../context/AuthenticationProvider';
-
-
-
+import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
 
 const Search = () => {
-  const [radius, setRadius] = useState(5); //setting initial slider
-  const sliderValue = useRef(radius); // Ref to hold slider value without triggering re-rendering
-  const [isLoading,setIsLoading] = useState(true); //to show loading page while retrieving data
-  const [searchInput, setSearchInput] = useState(''); // search input field
-  const [allPlaces, setAllPlaces] = useState([]); //for initializing empty places list
-  const [filteredPlaces, setFilteredPlaces] = useState([]); // Filtered places to display
-  const [currentSelection,setCurrentSelection] = useState('restaurants');
-  const {currentLocation,locationPermission} = useContext(AuthenticationProviderContext);
+  const [radius, setRadius] = useState(5);
+  const sliderValue = useRef(radius);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchInput, setSearchInput] = useState('');
+  const [allPlaces, setAllPlaces] = useState([]);
+  const [filteredPlaces, setFilteredPlaces] = useState([]);
+  const [currentSelection, setCurrentSelection] = useState('restaurants');
+  const { currentLocation, locationPermission } = useContext(AuthenticationProviderContext);
 
   const navigation = useNavigation();
-  const redirectDescriptionScreen = (place)=>{
-    navigation.navigate("Description",{place})
-  }
+  const redirectDescriptionScreen = (place) => {
+    navigation.navigate("Description", { place });
+  };
 
-  // Initialize the list of places when the component mounts
   useEffect(() => {
-    
     const getPlaces = async () => {
+      if (currentSelection === 'all') return;
+      
       setIsLoading(true);
-      const places =await nearbyPlaces(radius*1000,currentSelection,currentLocation);
+      const places = await nearbyPlaces(radius * 1000, currentSelection, currentLocation);
       setIsLoading(false);
       setAllPlaces(places);
-      setFilteredPlaces(places); // updating filteredPlaces after setting the places
+      setFilteredPlaces(places);
+    };
 
-    }
-    if(locationPermission){
+    if (locationPermission && currentSelection !== 'all') {
       getPlaces();
-    }else if(!locationPermission){
+    } else if (!locationPermission) {
       Alert.alert(
         'Location Permission Required',
         'Please enable location permission to get nearby places',
         [
           {
-            text:'Open Settings',
-            onPress:()=>Linking.sendIntent('android.settings.LOCATION_SOURCE_SETTINGS')    
+            text: 'Open Settings',
+            onPress: () => Linking.sendIntent('android.settings.LOCATION_SOURCE_SETTINGS')
           },
           {
-            text:"Cancel",
-            style:'cancel'
+            text: "Cancel",
+            style: 'cancel'
           }
-          
         ]
-      )
-    }
-    
-    
-  
-  }, [radius,currentSelection,currentLocation]);
-
- 
-  
-
-  // filtering places based on search input field
-  useEffect(() => {
-    if (searchInput === '') {
-      setFilteredPlaces(allPlaces);
-    } else {
-      const filtered = allPlaces.filter((place) =>
-        place.name.toLowerCase().includes(searchInput.toLowerCase())
       );
-      setFilteredPlaces(filtered);
     }
-  }, [searchInput, allPlaces]);
+  }, [radius, currentSelection, currentLocation]);
+
+  useEffect(() => {
+    if (currentSelection !== 'all') {
+      if (searchInput === '') {
+        setFilteredPlaces(allPlaces);
+      } else {
+        const filtered = allPlaces.filter((place) =>
+          place.name.toLowerCase().includes(searchInput.toLowerCase())
+        );
+        setFilteredPlaces(filtered);
+      }
+    }
+  }, [searchInput, allPlaces, currentSelection]);
+
+  const handleSearch = async () => {
+    if (currentSelection === 'all' && searchInput.trim() && locationPermission) {
+      setIsLoading(true);
+      try {
+        const places = await nearbyPlaces(searchInput, currentSelection, currentLocation);
+        setAllPlaces(places);
+        setFilteredPlaces(places);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   const renderPlaces = () => {
     return filteredPlaces.map((place) => (
-      <PlacesList key={place.id} place={place} redirectDescriptionScreen={redirectDescriptionScreen}/>
+      <PlacesList key={place.id} place={place} redirectDescriptionScreen={redirectDescriptionScreen} />
     ));
   };
 
- 
-
   return (
     <View style={styles.container}>
-      {/* Search Section */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchBar}
             placeholder="Type to search"
             value={searchInput}
-            onChangeText={(text) => setSearchInput(text)} // updating search input field using useState
+            onChangeText={(text) => setSearchInput(text)}
+            onSubmitEditing={handleSearch}
           />
-          <TouchableOpacity style={styles.searchIcon}>
+          <TouchableOpacity style={styles.searchIcon} onPress={handleSearch}>
             <FontAwesome name="search" size={20} color="#000" />
           </TouchableOpacity>
         </View>
 
-        {/* Buttons for Restaurants and Destinations */}
         <View style={styles.toggleButtons}>
-          <TouchableOpacity style={currentSelection==='restaurants'?styles.activeButton:styles.inactiveButton}
-            onPress={()=>setCurrentSelection('restaurants')}>
+          <TouchableOpacity
+            style={currentSelection === 'restaurants' ? styles.activeButton : styles.inactiveButton}
+            onPress={() => setCurrentSelection('restaurants')}>
             <Text style={styles.toggleText}>Restaurants</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={currentSelection==='tourist_attraction'?styles.activeButton:styles.inactiveButton}
-          onPress={()=>setCurrentSelection('tourist_attraction')}>
+          <TouchableOpacity
+            style={currentSelection === 'tourist_attraction' ? styles.activeButton : styles.inactiveButton}
+            onPress={() => setCurrentSelection('tourist_attraction')}>
             <Text style={styles.toggleText}>Destinations</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={currentSelection === 'all' ? styles.activeButton : styles.inactiveButton}
+            onPress={() => setCurrentSelection('all')}>
+            <Text style={styles.toggleText}>Search All</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Slider Section */}
-        <View style={styles.sliderContainer}>
-          <Slider
-            style={styles.slider}
-            minimumValue={1}
-            maximumValue={20}
-            step={1}
-            value={sliderValue.current}
-            onValueChange={(value) => (sliderValue.current = value)} // updating ref value
-            onSlidingComplete={(value) => setRadius(value)} // updating useState state for radius value when sliding is complete
-            minimumTrackTintColor="#000"
-            maximumTrackTintColor="#ccc"
-            thumbTintColor="#000"
-          />
-          <Text style={styles.sliderLabel}>{radius} K.M.</Text>
-        </View>
+        {currentSelection !== 'all' && (
+          <View style={styles.sliderContainer}>
+            <Slider
+              style={styles.slider}
+              minimumValue={1}
+              maximumValue={20}
+              step={1}
+              value={sliderValue.current}
+              onValueChange={(value) => (sliderValue.current = value)}
+              onSlidingComplete={(value) => setRadius(value)}
+              minimumTrackTintColor="#000"
+              maximumTrackTintColor="#ccc"
+              thumbTintColor="#000"
+            />
+            <Text style={styles.sliderLabel}>{radius} K.M.</Text>
+          </View>
+        )}
 
-        {/* List of Places */}
-        {!locationPermission?(<Text>Please provide access to your location for results</Text>):
-        isLoading?(<LoadingAnimation message="Loading Places Nearby"></LoadingAnimation>):
-        (<View style={styles.placesList}>{renderPlaces()}</View>)
-        
-      }
+        {!locationPermission ? (
+          <Text>Please provide access to your location for results</Text>
+        ) : isLoading ? (
+          <LoadingAnimation message="Loading Places Nearby" />
+        ) : (
+          <View style={styles.placesList}>
+            {filteredPlaces.length > 0 ? renderPlaces() : 
+              <Text style={styles.noResultsText}>No results found</Text>
+            }
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -180,25 +196,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginVertical: 10,
+    gap: 5,
   },
   activeButton: {
     backgroundColor: '#f16d26',
     padding: 10,
     borderRadius: 5,
-    width: '45%',
+    width: '30%',
     alignItems: 'center',
   },
   inactiveButton: {
     backgroundColor: '#ddd',
     padding: 10,
     borderRadius: 5,
-    width: '45%',
+    width: '30%',
     alignItems: 'center',
   },
   toggleText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#000',
+    textAlign: 'center',
   },
   sliderContainer: {
     flexDirection: 'row',
@@ -217,5 +235,10 @@ const styles = StyleSheet.create({
   placesList: {
     marginTop: 10,
   },
-  
+  noResultsText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#666',
+  },
 });
