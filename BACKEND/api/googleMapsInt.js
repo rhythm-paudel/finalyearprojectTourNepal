@@ -10,13 +10,13 @@ const getNearbyDestinations = async (location, radius, destinationType) => {
 
   try {
     if (typeof radius !== "number") {
-      destinations = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${radius}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+      destinations = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${radius}+in+Nepal&region=np&key=${process.env.GOOGLE_MAPS_API_KEY}`;
     }
 
     const response = await axios.get(destinations);
     if (response.data.results) {
       const placesDict = [];
-
+      let counter = 0 //for fetching description of only top 5 places due to token limitation
       for (const place of response.data.results) {
         //response.data.results.forEach this for each wont work for asynchronous method
         let latitude = place.geometry.location.lat;
@@ -27,11 +27,14 @@ const getNearbyDestinations = async (location, radius, destinationType) => {
           place.photos && place.photos.length ? await getPhoto(place) : false;
 
         //declaring description variable
-        let descriptionOfPlace = "";
+        let descriptionOfPlace = "Description for this place is unavailable.";
 
-       
-        descriptionOfPlace = await getDescription(place.name);
-        
+        try{
+          descriptionOfPlace = await getDescription(place.name);
+     
+        }catch(e){
+          descriptionOfPlace = "Description for this place is unavailable.";
+        }
         placesDict.push({
           name: place.name,
           description: descriptionOfPlace,
@@ -43,8 +46,10 @@ const getNearbyDestinations = async (location, radius, destinationType) => {
 
       return placesDict;
     }
+
     return [];
   } catch (err) {
+    console.log(err.message);
     return [];
   }
 };
@@ -68,13 +73,13 @@ const getDescription = async (placeName) => {
   const genAI = new GoogleGenerativeAI(apiKey);
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.0-pro-exp-02-05",
   });
-
+  
   const generationConfig = {
-    temperature: 1,
+    temperature: 0.7,
     topP: 0.95,
-    topK: 40,
+    topK: 64,
     maxOutputTokens: 8192,
     responseMimeType: "text/plain",
   };
@@ -86,41 +91,15 @@ const getDescription = async (placeName) => {
     });
 
     const result =
-      await chatSession.sendMessage(`Provide a 4-sentence description of ${placeName}. Only respond for verified famous locations/attractions - return empty string for unknown/unverified places or restaurants.
+      await chatSession.sendMessage(`Provide me a short description in about 2 sentences about ${placeName}. If the place is unknown or you dont have
+                                      enough information about it, reply with "Description for this place is unavailable." Note all the place  are in Nepal
+                                      if you think otherwise just say "Description for this place is unavailable." If it is an tourist attraction stricly 
+                                      reply with "SAARC NATIONAL FEE:NPRXXX FOREIGNER FEE:NPRXXX in separate lines". Directly give the description without mentioning anything
+                                      like Okay, or here is the description. This response will be put in a description page for places that's why. Make sentences short 
+                                      as possible. Directly start from description then prices nothing else. If unknown about the fees please no assumptions.
+                                      Only give description or prices if known. If the place is veg or non-veg kindly mention that too, again if unknow just say nothing about
+                                      veg or non-veg.
 
-                                      For restaurants: Include 'Veg'/'Non-veg' type only if internationally recognized (e.g., Bhojan Griha).
-
-                                      For tourist attractions:
-
-                                      Add a separate pricing paragraph only if entry fees for foreigners exist.
-                                      Format:
-                                      ~ NPR X,XXX (Foreigners)
-                                      Nepali citizens: Free/Not applicable
-                                      Unavailable if data unknown
-                                      Use NPR only. Never include national monuments/government bodies' fees.
-                                      Structure:
-
-                                      Concise 4-line description
-                                      Pricing (if applicable): Bullet points with * symbols.
-                                      Return empty string if place isn't notable/real. No apologies/assumptions."
-                                      Key Improvements:
-
-                                      Strict validation to prevent fictional/lesser-known places
-                                      Clear veg/non-veg labeling only for iconic restaurants
-                                      Standardized pricing format excluding restaurants
-                                      Explicit foreigner-Nepali pricing distinction
-                                      Removal of speculative content ("unknown" vs assumptions)
-                                      Example Output:
-                                      For "Swayambhunath Stupa":
-                                      "Ancient Buddhist stupa atop a hill in Kathmandu. Known as Monkey Temple for its resident primates. UNESCO World Heritage Site with panoramic city views. Features iconic Buddha eyes and intricate architecture.
-
-                                      Pricing:
-
-                                      ~ NPR 200 (Foreigners)
-                                      Nepali citizens: Free"
-                                      For "Random Cafe123":
-
-                                      If no response is to be sent return "Description is unavailable for  this place"
 `);
     console.log(result.response.text());
     return result.response.text();

@@ -70,7 +70,7 @@ const userController = {
     if(!id) return res.sendStatus(400);
  
     if(!user) return res.sendStatus(400);
-    console.log("id payo")
+
     try{
         const result = await User.findOneAndUpdate(
             {

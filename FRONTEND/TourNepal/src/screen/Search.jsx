@@ -34,10 +34,11 @@ const Search = () => {
 
   useEffect(() => {
     const getPlaces = async () => {
-      if (currentSelection === 'all') return;
+     
       
       setIsLoading(true);
       const places = await nearbyPlaces(radius * 1000, currentSelection, currentLocation);
+
       setIsLoading(false);
       setAllPlaces(places);
       setFilteredPlaces(places);
@@ -80,7 +81,10 @@ const Search = () => {
     if (currentSelection === 'all' && searchInput.trim() && locationPermission) {
       setIsLoading(true);
       try {
+       
+        
         const places = await nearbyPlaces(searchInput, currentSelection, currentLocation);
+        
         setAllPlaces(places);
         setFilteredPlaces(places);
       } catch (error) {

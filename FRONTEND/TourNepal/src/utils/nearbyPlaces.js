@@ -32,9 +32,12 @@ export const nearbyPlaces = async (
 
       return places;
     } else {
+      console.log(response?.data);
       return [];
     }
   } catch (e) {
+   
+    
     return [];
   }
 };
