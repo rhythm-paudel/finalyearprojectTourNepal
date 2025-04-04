@@ -39,7 +39,7 @@ const sendNotifications = async(req, res) => {
         const notificationObject = {
           title: title,
           message: body,
-          messagetype: messagetype // Include the type of the message (e.g., 'info', 'alert', etc.)
+          messagetype: messagetype 
         };
         console.log("Sent successfully to", token, response);
         successCount++;
