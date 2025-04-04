@@ -12,5 +12,5 @@ router.route('/')
 //     .get(nearbyPlacesController.getNearbyPlaces)
 //     // .post(verifyRefreshToken,nearbyPlacesController.postReviews)
 
-
+router.route('/getDescription').post(nearbyPlacesController.getDescription)
 module.exports = router;

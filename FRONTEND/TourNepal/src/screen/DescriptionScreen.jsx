@@ -4,15 +4,18 @@ import { StyleSheet, View, Text, Image, TouchableOpacity, Linking, ScrollView, T
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useContext } from 'react';
 import { AuthenticationProviderContext } from '../context/AuthenticationProvider';
-import { addComment, getReviews } from '../utils/nearbyPlaces';
+import { addComment, getDescription, getReviews } from '../utils/nearbyPlaces';
 import Reviews from '../components/Reviews';
 import { AuthCheck } from '../context/AuthServices';
 import { storeTokens, getToken } from '../utils/TokenStorage';
 import { refreshToken } from '../api/authService';
+import LoadingAnimation from '../components/LoadingAnimation';
 
 const DescriptionScreen = () => {
+  const [description, setDescription] = useState('');
   const [comment, setComment] = useState('');
   const [reviews, setReviews] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const route = useRoute();
   const { place } = route.params;
   const navigateToGoogleMaps = () => { //redirects to google maps if installed else redirects to website for that location
@@ -30,7 +33,7 @@ const DescriptionScreen = () => {
   }
 
   useEffect(() => {
-
+   
     if (currUser.verificationStatus === "verified") {
 
 
@@ -46,6 +49,18 @@ const DescriptionScreen = () => {
     }
     review();
 
+    const descriptionOfPlace = async () => {
+      setIsLoading(true)
+      const response = await getDescription(place.name);
+      if (response?.status === 200) {
+        setDescription(response.data.description);
+      }else{
+         setDescription("Description for this place is not available");
+      }
+      setIsLoading(false)
+    }
+
+    descriptionOfPlace();
 
 
   }, [reviews.length]);
@@ -126,6 +141,7 @@ const DescriptionScreen = () => {
   }
 
 
+
   return (
     // description screen model (everything is static as of now)
     <View style={styles.container}>
@@ -147,9 +163,11 @@ const DescriptionScreen = () => {
           <TouchableOpacity style={styles.navigateButton} onPress={navigateToGoogleMaps}>
             <Text style={styles.navigateButtonText}>Navigate</Text>
           </TouchableOpacity>
-          <Text style={styles.destinationDescription}>
-            {place.description ? place.description : "Description is not available for this place"}
-          </Text>
+          {isLoading?
+          <LoadingAnimation message={"Loading description..."} />:<Text style={styles.destinationDescription}>
+          {description ? description : "Description is not available for this place"}
+        </Text>
+        }
         </View>
 
 

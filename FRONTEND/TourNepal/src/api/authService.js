@@ -221,6 +221,20 @@ export const getPlaceReviews = async (lat,lng)=>{
     }
 }
 
+export const getDescriptionOfPalce = async (placeName)=>{
+    const GET_DESCRIPTION = "/location/getDescription"
+
+    try{
+        const response = await baseUrl.post(GET_DESCRIPTION,{"name":placeName})
+        return response
+    }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+    }
+}
+
 export const getContacts = async ()=>{
     const GET_CONTACTS = "/emergencycontacts"
 

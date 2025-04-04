@@ -1,8 +1,9 @@
-import {getNearbyPlaces} from '../api/authService';
+import {getDescriptionOfPalce, getNearbyPlaces} from '../api/authService';
 import { postComment,updateComment,removeComment } from '../api/authService';
 import { getToken } from './TokenStorage';
 import { getPlaceReviews } from '../api/authService';
 
+//for getting nearby places
 export const nearbyPlaces = async (
   radii,
   currentSelection,
@@ -42,6 +43,14 @@ export const nearbyPlaces = async (
   }
 };
 
+
+//for getting description of places
+export const getDescription = async (placeName)=>{
+  const desscription = await getDescriptionOfPalce(placeName);
+  return desscription
+}
+
+
 //location function
 export const getLocation = async () => {
   const granted = await PermissionsAndroid.request(
@@ -59,6 +68,10 @@ export const checkPermission = async () => {
 };
 
 
+
+//reviews section for places
+
+//for adding comment
 export const addComment = async(comment,location,name)=>{
   const accessToken =await getToken();
   
@@ -74,6 +87,7 @@ export const addComment = async(comment,location,name)=>{
   return posted;
 }
 
+//for editing comment
 export const editComment = async(location,editedReview,commentID)=>{
   const accessToken =await getToken();
   const [longitude,latitude] = location.split(',')
@@ -90,6 +104,7 @@ export const editComment = async(location,editedReview,commentID)=>{
   return response
 }
 
+//for deleting comment
 export const deleteComment = async(location,commentID)=>{
   const accessToken =await getToken();
 
@@ -107,6 +122,8 @@ export const deleteComment = async(location,commentID)=>{
   return response
 }
 
+
+//for getting all the reviews
 export const getReviews = async(location)=>{
   const [longitude,latitude] = location.split(',')
 

@@ -16,7 +16,7 @@ const getNearbyDestinations = async (location, radius, destinationType) => {
     const response = await axios.get(destinations);
     if (response.data.results) {
       const placesDict = [];
-      let counter = 0 //for fetching description of only top 5 places due to token limitation
+
       for (const place of response.data.results) {
         //response.data.results.forEach this for each wont work for asynchronous method
         let latitude = place.geometry.location.lat;
@@ -26,18 +26,9 @@ const getNearbyDestinations = async (location, radius, destinationType) => {
         let photo_aaa =
           place.photos && place.photos.length ? await getPhoto(place) : false;
 
-        //declaring description variable
-        let descriptionOfPlace = "Description for this place is unavailable.";
-
-        try{
-          descriptionOfPlace = await getDescription(place.name);
-     
-        }catch(e){
-          descriptionOfPlace = "Description for this place is unavailable.";
-        }
         placesDict.push({
           name: place.name,
-          description: descriptionOfPlace,
+          //description: descriptionOfPlace,
           location: { latitude: latitude, longitude: longitude },
           rating: place.rating,
           photoRef: photo_aaa,

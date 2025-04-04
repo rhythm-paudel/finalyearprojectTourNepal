@@ -1,5 +1,6 @@
 //geoapify a good alternative for google maps
 
+const { returnDescription } = require('../api/geminiDescription');
 const {getNearbyDestinations} = require('../api/googleMapsInt')
 const Reviews = require('../model/Reviews');
 
@@ -43,5 +44,17 @@ const getReviews = async (req,res)=>{
 }
 
 
+const getDescription = async (req,res) => {
+    const {name} = req.body
+    
+    if(!name){
+        return res.status(400).json({"error":"Place name is required"})
+    }
+   
+    const description = await returnDescription(name)
+    res.status(200).json({"description":description})
+}
 
-module.exports = {getNearbyPlaces,getReviews}
+
+
+module.exports = {getNearbyPlaces,getReviews,getDescription}
