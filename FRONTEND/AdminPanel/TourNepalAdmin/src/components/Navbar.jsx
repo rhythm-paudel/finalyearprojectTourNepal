@@ -11,7 +11,7 @@ function Navbar() {
   return (
     <div className="w-64 min-h-screen bg-gray-900 text-white flex flex-col p-5 space-y-6">
       <div className="flex items-center space-x-3">
-        <h2 className="text-2xl font-bold text-indigo-400">MyApp</h2>
+        <h2 className="text-2xl font-bold text-indigo-400">TourNepal Admin</h2>
       </div>
 
       <nav className="flex flex-col space-y-2 flex-1">
