@@ -21,7 +21,7 @@ const PlacesList = ({place,redirectDescriptionScreen}) => {
         <View style={styles.placeDetails}>
           <Text style={styles.placeName}>{place.name}</Text>
           <Text style={styles.placeRating}>
-            {place.rating} {place.reviews}
+            {place.rating} 
           </Text>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.navigateButton}onPress={navigateToGoogleMaps} >

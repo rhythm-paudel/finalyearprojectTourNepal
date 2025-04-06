@@ -49,6 +49,12 @@ const DescriptionScreen = () => {
     }
     review();
 
+   
+
+
+  }, [reviews.length]);
+
+  useEffect(()=>{
     const descriptionOfPlace = async () => {
       setIsLoading(true)
       const response = await getDescription(place.name);
@@ -61,9 +67,7 @@ const DescriptionScreen = () => {
     }
 
     descriptionOfPlace();
-
-
-  }, [reviews.length]);
+  },[])
 
   const handleComment = async () => {
     let encryptedToken =await getToken();
