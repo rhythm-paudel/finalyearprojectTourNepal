@@ -133,11 +133,7 @@ const Reviews = () => {
               setCurrentPage(1);
             }}
           />
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-400">
-              Showing {indexOfFirstReview + 1} to {Math.min(indexOfLastReview, filteredReviews.length)} of {filteredReviews.length} entries
-            </span>
-          </div>
+          
         </div>
 
         <div className="rounded-lg overflow-hidden border border-gray-800">

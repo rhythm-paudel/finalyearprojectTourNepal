@@ -223,11 +223,7 @@ const Users = () => {
               setCurrentPage(1);
             }}
           />
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-400">
-              Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} entries
-            </span>
-          </div>
+          
         </div>
 
         <div className="rounded-lg overflow-hidden border border-gray-800">
