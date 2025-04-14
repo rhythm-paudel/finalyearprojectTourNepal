@@ -1,12 +1,12 @@
 import { StyleSheet, Text, View,Image } from 'react-native'
 import React from 'react'
-
+import { images } from '../utils/images'
 //for each cards to be shown in the home screen
 const HomescreenCards = ({place}) => {
     return (
         <View style={styles.placeCard}>
             <Image
-                source={require('../assets/placeholder.png')}
+                source={images[place.imagePath]}
                 style={styles.placeImage}
             />
             <Text style={styles.placeName}>{place.name}</Text>

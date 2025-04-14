@@ -10,20 +10,20 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const visitPlaces = [
-      { id: 1, name: 'Italy', imagePath: '../assets/placeholder.png' },
-      { id: 2, name: 'France', imagePath: '../assets/placeholder.png' },
-      { id: 3, name: 'Greece', imagePath: '../assets/placeholder.png' },
-      { id: 4, name: 'Spain', imagePath: '../assets/placeholder.png' },
+      { id: 1, name: 'Italy', imagePath: 'italy' },
+      { id: 2, name: 'France', imagePath: 'france' },
+      { id: 3, name: 'Greece', imagePath: 'greece' },
+      { id: 4, name: 'Spain', imagePath: 'spain' },
     ];
     setVisitedPLaces(visitPlaces);
   }, []);
 
   useEffect(() => {
     const recommendPlaces = [
-      { id: 1, name: 'Patan', imagePath: '../assets/placeholder.png' },
-      { id: 2, name: 'Lumbini', imagePath: '../assets/placeholder.png' },
-      { id: 3, name: 'Pokhara', imagePath: '../assets/placeholder.png' },
-      { id: 4, name: 'Chitwan', imagePath: '../assets/placeholder.png' },
+      { id: 1, name: 'Patan', imagePath: 'patan' },
+      { id: 2, name: 'Lumbini', imagePath: 'lumbini' },
+      { id: 3, name: 'Pokhara', imagePath: 'pokhara' },
+      { id: 4, name: 'Chitwan', imagePath: 'chitwan' },
     ];
     setRecommendationPlaces(recommendPlaces);
   }, []);

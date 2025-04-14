@@ -14,7 +14,7 @@ export const AuthContext = createContext();
 export const DataProvider = ({children})=>{
   
 
-    const {setCurrUser,getUserDetail} = useContext(AuthenticationProviderContext) //using context from authenticationprovider for setting current user
+    const {setCurrUser,getUserDetail,saveLocation} = useContext(AuthenticationProviderContext) //using context from authenticationprovider for setting current user
     const login = async (email,password)=>{
         const userData = await loginUser(email,password)
         if(userData && userData?.data.accessToken){
@@ -22,9 +22,11 @@ export const DataProvider = ({children})=>{
             await storeTokens(userData.data.accessToken,userData.data.encryptedToken)
             const details = await getUserDetail();
             setCurrUser(details.data); //setting the user session if the token is validated
+           
+        
             const notificationToken = await androidNotificationToken();
-            
-         
+            await saveLocation();
+   
             
             const response = await updateToken(notificationToken,userData.data.accessToken);
          

@@ -26,33 +26,36 @@ const ContactsList = ({ contact }) => { //retrieving each contact from the main 
 export default ContactsList
 
 const styles = StyleSheet.create({
-
-    contactCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 15,
-        marginBottom: 10,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 2,
-    },
-    contactDetails: {
-        flex: 1,
-    },
-    contactName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#2c3e50',
-    },
-    contactNumber: {
-        fontSize: 16,
-        color: '#7f8c8d',
-    }
-})
+  contactCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 18,
+    marginBottom: 15,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  contactDetails: {
+    flex: 1,
+  },
+  contactName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: 4,
+  },
+  contactNumber: {
+    fontSize: 16,
+    color: '#64748b',
+  },
+  phoneIcon: {
+    color: '#3b82f6',
+  }
+});

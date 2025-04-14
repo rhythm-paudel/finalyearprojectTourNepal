@@ -52,7 +52,10 @@ const AuthenticationProvider = ({children}) => {
     if (granted) {
       setLocationPermission(true);
         gettingCurrentLocation();
+       
+        
     } else {  
+      console.log("user current location not granted"); 
       setLocationPermission(false);
     }
   };
@@ -68,7 +71,10 @@ const AuthenticationProvider = ({children}) => {
         if(accessToken?.status===200){
          
             storeTokens(accessToken.data.accessToken,encryptedToken.encryptedToken);
+
             encryptedToken = await getToken();
+         
+            
             const newResponse = await fetchUserDetails(encryptedToken.accessToken); //re-requesting user details
             return newResponse;
         }else{ //incase if the refresh token is also expired
@@ -91,6 +97,7 @@ const AuthenticationProvider = ({children}) => {
         const tokens = await getToken();
         
         if (tokens && tokens.encryptedToken && tokens.accessToken) {
+          console.log(tokens)
           const response = await checkUserToken(tokens.encryptedToken); //waiting for response from the backend
 
           if (response?.status === 200) {
@@ -145,7 +152,9 @@ const AuthenticationProvider = ({children}) => {
         setIsAuthenticated,
         currentLocation,
         locationPermission,
-        getUserDetail
+        getUserDetail,
+        saveLocation,
+        currentLocation
       }}>
       {children}
     </AuthenticationProviderContext.Provider>

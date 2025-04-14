@@ -42,7 +42,9 @@ const returnDescription = async (placeName)=>{
       });
   
       const result =
-        await chatSession.sendMessage(`You are an expert information provider focusing on detailed, accurate descriptions of ${placeName}. Follow these guidelines strictly:
+        await chatSession.sendMessage(`You are tasked with providing a description of this specific place: "${placeName}".
+
+If this place name is unknown, fictional, or you don't have reliable information about it, respond ONLY with: "Description is not available for this place" - with no other text.
 
 1. Description Guidelines:
    - Provide a concise, factual description (2-3 sentences maximum)

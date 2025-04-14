@@ -58,9 +58,6 @@ const Profile = () => {
 
   //use effect to fetch the user data from the server
   useEffect(() => {
-
-
-
     setLoading(true); //for loading screen
     const fetchUserData = async () => {
       const response = await getUserDetail()
@@ -77,9 +74,6 @@ const Profile = () => {
       } else {//if the access and refresh token is expired
         navigation.navigate('Auth')
       }
-
-
-
     }
     fetchUserData();
     setLoading(false);
@@ -104,32 +98,29 @@ const Profile = () => {
             const response = await deleteRequest();
             if (response.status === 200) {
               Alert.alert('Deletion Request Successful', 'Your account will be reviewed for deletion process.');
-             
             } else {
-
-              
               Alert.alert('Something went wrong');
             }
           }
         }
-
       ]
     )
   }
+
+  const handlePasswordChange = () => {
+    navigation.navigate("Changepassword")
+  };
 
   const handleReupload = async () => {
     if (!formData.passport?.uri || !formData.visa?.uri) {
       setErrMsg(true);
     } else {
-
       setErrMsg(false)
       const passportToSave = formDataToSave('passport');
       const visaToSave = formDataToSave('visa');
 
       try {
         setLoading(true);
-
-
         const passportResponse = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
           passportToSave,
           { headers: { 'Content-Type': 'multipart/form-data' } }
@@ -139,10 +130,8 @@ const Profile = () => {
           visaToSave,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         )
-        //if the passport and visa is securely uploaded to cloudinary
 
         if (passportResponse?.data.secure_url && visaResponse?.data.secure_url) {
-          //a copy of form data is created to update the passport and visa fields as using set method of useState is async
           const updatedData = {
             ...formData,
             passport: passportResponse.data.secure_url,
@@ -158,16 +147,12 @@ const Profile = () => {
           } else {
             Alert.alert('Something went wrong');
           }
-
-          //messages to be shown after registration
-
         }
         setLoading(false);
       } catch (e) {
         setLoading(false);
         console.log('error')
       }
-
     }
   }
 
@@ -194,10 +179,8 @@ const Profile = () => {
       console.log(response?.status)
     }
     setIsEditingEmail(false);
-  
   };
 
-  //handling logout of the user
   const handleLogout = async () => {
     Alert.alert(
       'Logout Confirmation',
@@ -220,7 +203,6 @@ const Profile = () => {
     );
   }
 
-  //for letting the user decide to choose between camera and gallery while uploading documents
   const showImagePickerAlert = (field) => {
     Alert.alert(
       'Upload Image',
@@ -243,7 +225,6 @@ const Profile = () => {
     );
   };
 
-  //when an image is uploaded a callback fucntion is called to perform certain action
   const handleImagePicker = (type, field) => {
     const options = {
       mediaType: 'photo',
@@ -254,7 +235,7 @@ const Profile = () => {
       if (response.assets?.[0]?.uri) {
         setFormData(prev => ({
           ...prev,
-          [field]: response.assets[0]  // Store the full asset object instead of base64
+          [field]: response.assets[0]
         }));
         setUploadedStatus(prev => ({
           ...prev,
@@ -263,7 +244,6 @@ const Profile = () => {
       }
     };
 
-    //options and callback are defined to perform actions for certain mediaType
     if (type === 'camera') {
       launchCamera(options, callback);
     } else if (type === 'gallery') {
@@ -271,42 +251,28 @@ const Profile = () => {
     }
   };
 
-  //creating form data to push to cloudinary
   const formDataToSave = (copyType) => {
     const toSave = new FormData();
     const [firstName, lastName] = profileData.name.split(' ');
     if (copyType === 'passport') {
       const name = `${firstName}-${lastName}-passport`;
-
-
       toSave.append('file', {
         uri: formData.passport.uri,
         type: formData.passport.type || 'image/jpeg',
         name: name || 'passport'
-
       })
     } else if (copyType === 'visa') {
       const name = `${firstName}-${lastName}-visa`;
-
       toSave.append('file', {
         uri: formData.visa.uri,
         type: formData.visa.type || 'image/jpeg',
         name: name || 'visa'
-
       })
     }
     toSave.append('upload_preset', UPLOAD_PRESET);
     return toSave;
-
   }
 
-  //handling password change
-  const handlePasswordChange = async () => {
-    
-  }
-
-  //for rendering certain fields according to the visa status of the user. 
-  //if rejected certain buttons are added
   const renderVisaSection = () => {
     if (profileData.visaStatus === 'not_verified') {
       return <Text style={styles.visaStatus}>Visa Status: Not Verified</Text>;
@@ -315,7 +281,6 @@ const Profile = () => {
     } else if (profileData.visaStatus === 'rejected') {
       return (
         <View>
-
           <Text style={styles.visaStatus}>Visa Status: Rejected</Text>
           <TouchableOpacity
             style={[styles.uploadButton, uploadedStatus.passport && styles.uploadSuccess]}
@@ -354,7 +319,6 @@ const Profile = () => {
 
   return (
     <View style={styles.container}>
-
       {loading && (
         <View style={styles.loadingOverlay}>
           <View style={styles.loadingContainer}>
@@ -363,7 +327,6 @@ const Profile = () => {
           </View>
         </View>
       )}
-      {/* Profile Section */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Profile</Text>
         <View style={styles.card}>
@@ -403,108 +366,86 @@ const Profile = () => {
               </View>
             )}
           </View>
-          <TouchableOpacity style={styles.passwordButton} onPress={handleDeletion} disabled={profileData.deleteRequest}>
-            <Text style={styles.passwordButtonText}>{profileData.deleteRequest?'Deletion Request Sent':'Request Profile Deletion'}</Text>
+
+          {/* Added Change Password Button */}
+          <TouchableOpacity 
+            style={styles.passwordButton} 
+            onPress={handlePasswordChange}
+          >
+            <Text style={styles.passwordButtonText}>Change Password</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.passwordButton} 
+            onPress={handleDeletion} 
+            disabled={profileData.deleteRequest}
+          >
+            <Text style={styles.passwordButtonText}>
+              {profileData.deleteRequest ? 'Deletion Request Sent' : 'Request Profile Deletion'}
+            </Text>
+          </TouchableOpacity>
+          
           {renderVisaSection()}
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
-
-        {/* For changing password */}
-        <View style={styles.card}>
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Current Password:</Text>
-            <View style={styles.fieldBox}>
-              <TextInput
-                style={styles.input}
-                secureTextEntry
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-              />
-            </View>
-          </View>
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>New Password:</Text>
-            <View style={styles.fieldBox}>
-              <TextInput
-                style={styles.input}
-                secureTextEntry
-                value={newPassword}
-                onChangeText={setNewPassword}
-              />
-            </View>
-          </View>
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Confirm Password:</Text>
-            <View style={styles.fieldBox}>
-              <TextInput
-                style={styles.input}
-                secureTextEntry
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-              />
-            </View>
-          </View>
-          <TouchableOpacity style={styles.passwordButton} onPress={handlePasswordChange}>
-            <Text style={styles.passwordButtonText}>Change Password</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     </View>
   );
 };
 
-export default Profile;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
     paddingBottom: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#2c3e50',
-    marginVertical: 20,
+    color: '#1e293b',
+    marginVertical: 30,
+    letterSpacing: 0.5,
   },
   card: {
-    backgroundColor: '#f9f9f9',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 25,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-    marginBottom: 15,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    marginBottom: 20,
   },
   fieldContainer: {
-    marginBottom: 15,
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontWeight: '600',
+    color: '#64748b',
+    marginBottom: 8,
   },
   fieldBox: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    backgroundColor: '#fff',
+    borderColor: '#e2e8f0',
+    borderRadius: 12,
+    padding: 15,
+    backgroundColor: '#f8fafc',
   },
   value: {
     fontSize: 16,
-    color: '#7f8c8d',
+    color: '#1e293b',
   },
   editContainer: {
     flexDirection: 'row',
@@ -514,84 +455,108 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
+    borderColor: '#e2e8f0',
+    borderRadius: 12,
+    padding: 15,
     fontSize: 16,
+    backgroundColor: '#f8fafc',
+    color: '#1e293b',
   },
   saveButton: {
-    backgroundColor: '#3498db',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: '#3b82f6',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     marginLeft: 10,
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   saveButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   passwordButton: {
-    backgroundColor: '#3498db',
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: '#3b82f6',
+    padding: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 15,
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   passwordButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   visaStatus: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#3498db',
-    marginBottom: 10,
+    fontWeight: '600',
+    color: '#3b82f6',
+    marginBottom: 15,
   },
   uploadButton: {
-    backgroundColor: '#f9f9f9',
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: '#f8fafc',
+    padding: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 10,
-    borderColor: '#ccc',
+    marginBottom: 12,
     borderWidth: 1,
+    borderColor: '#e2e8f0',
     flexDirection: 'row',
   },
   uploadIcon: {
-    marginRight: 10,
+    marginRight: 12,
   },
   uploadSuccess: {
-    backgroundColor: '#d4edda',
-    borderColor: '#c3e6cb',
+    backgroundColor: '#f0fdf4',
+    borderColor: '#bbf7d0',
   },
   uploadButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#3498db',
+    fontWeight: '600',
+    color: '#3b82f6',
   },
   resubmitButton: {
-    backgroundColor: '#3498db',
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: '#3b82f6',
+    padding: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 15,
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   resubmitButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-  }, logoutButton: {
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 5,
+    fontWeight: '600',
+  },
+  logoutButton: {
+    backgroundColor: '#ef4444',
+    padding: 16,
+    borderRadius: 12,
     alignItems: 'center',
     marginTop: 20,
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   logoutButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   loadingOverlay: {
     position: 'absolute',
@@ -599,20 +564,30 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 999,
   },
   loadingContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    padding: 20,
-    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    padding: 30,
+    borderRadius: 20,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
   },
   loadingText: {
-    color: 'white',
-    marginTop: 10,
+    color: '#64748b',
+    marginTop: 15,
     fontSize: 16,
+    fontWeight: '500',
   },
 });
+
+export default Profile;

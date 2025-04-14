@@ -23,7 +23,7 @@ const login = async (req, res) => {
             },
             },
             process.env.ACCESS_SECRET_TOKEN_ADMIN,
-            {expiresIn:'10s'}
+            {expiresIn:'1d'}
       
         );
 
@@ -34,7 +34,7 @@ const login = async (req, res) => {
             },
             },
             process.env.REFRESH_SECRET_TOKEN_ADMIN,
-            {expiresIn:'1d'}
+            {expiresIn:'7d'}
         );
         adminDB.refreshToken = refreshToken
         await adminDB.save();

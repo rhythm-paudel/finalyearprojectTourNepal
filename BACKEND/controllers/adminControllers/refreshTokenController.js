@@ -20,7 +20,7 @@ const handleRefreshToken =async (req,res)=>{
                     },
                   },
                   process.env.ACCESS_SECRET_TOKEN_ADMIN,
-                  {expiresIn:'10s'}
+                  {expiresIn:'1d'}
                 );
                 res.json({ accessToken,"AdminDetail":{"email":adminDB.email,"username":adminDB.username}});
             }
