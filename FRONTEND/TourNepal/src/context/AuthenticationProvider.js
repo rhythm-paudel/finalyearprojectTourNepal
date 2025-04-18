@@ -97,7 +97,7 @@ const AuthenticationProvider = ({children}) => {
         const tokens = await getToken();
         
         if (tokens && tokens.encryptedToken && tokens.accessToken) {
-          console.log(tokens)
+         
           const response = await checkUserToken(tokens.encryptedToken); //waiting for response from the backend
 
           if (response?.status === 200) {

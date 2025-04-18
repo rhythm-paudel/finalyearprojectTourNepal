@@ -17,7 +17,7 @@ useEffect(()=>{
     const response = await getNotifications(token.accessToken);
 
     
-    console.log(response?.status);
+   
     if(response?.status===200){
       setNotifications(response?.data.notifications);
       setIsLoading(false);
