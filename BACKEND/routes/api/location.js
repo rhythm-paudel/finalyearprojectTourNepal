@@ -5,12 +5,12 @@ const {verifyRefreshToken} = require('../../middleware/verifyUser.js');
 
 
 router.route('/')
-    .post(nearbyPlacesController.getNearbyPlaces)
+    .get(nearbyPlacesController.getNearbyPlaces)
 
 
 // router.route('/getNearbyPlaces')
 //     .get(nearbyPlacesController.getNearbyPlaces)
 //     // .post(verifyRefreshToken,nearbyPlacesController.postReviews)
 
-router.route('/getDescription').post(nearbyPlacesController.getDescription)
+router.route('/getDescription').get(nearbyPlacesController.getDescription)
 module.exports = router;

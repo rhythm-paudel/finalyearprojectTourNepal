@@ -5,11 +5,19 @@ const {
   HarmBlockThreshold,
 } = require("@google/generative-ai");
 
-const getNearbyDestinations = async (location, radius, destinationType) => {
-  let destinations = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=${destinationType}&location=${location.latitude},${location.longitude}&radius=${radius}&type=${destinationType}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+const getNearbyDestinations = async (latitude,longitude, radius, destinationType) => {
 
+  let lat = parseFloat(latitude)
+  let lon = parseFloat(longitude)
+  let rad = parseFloat(radius)
+  let destinations = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=${destinationType}&location=${lat},${lon}&radius=${rad}&type=${destinationType}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+
+
+  
   try {
-    if (typeof radius !== "number") {
+    if (radius === NaN) {
+
+      
       destinations = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${radius}+in+Nepal&region=np&key=${process.env.GOOGLE_MAPS_API_KEY}`;
     }
 
@@ -18,6 +26,8 @@ const getNearbyDestinations = async (location, radius, destinationType) => {
       const placesDict = [];
 
       for (const place of response.data.results) {
+      
+        
         //response.data.results.forEach this for each wont work for asynchronous method
         let latitude = place.geometry.location.lat;
         let longitude = place.geometry.location.lng;

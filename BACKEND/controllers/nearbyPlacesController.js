@@ -5,16 +5,18 @@ const {getNearbyDestinations} = require('../api/googleMapsInt')
 const Reviews = require('../model/Reviews');
 
 const getNearbyPlaces = async (req,res)=>{
-    const {location,radius,destinationType} = req.body
+    const {latitude,longitude,radius,destinationType} = req.query
+    const decodedRadius = radius
+    console.log(radius);
+    
+    if(!latitude ||!longitude|| !radius) return res.status(400).json({ message: "Location and Latitude are required." });
 
-    if(!location || !radius) return res.status(400).json({ message: "Location and Latitude are required." });
-
-   
+    if(!destinationType) return res.status(400).json({message:"Destination type is required for location fetching."})
 
     //now requesting from google maps api
     
     
-    const destinations = await  getNearbyDestinations(location,radius,destinationType)
+    const destinations = await  getNearbyDestinations(latitude,longitude,decodedRadius,destinationType)
     
     
     
@@ -45,7 +47,7 @@ const getReviews = async (req,res)=>{
 
 
 const getDescription = async (req,res) => {
-    const {name} = req.body
+    const {name} = req.query
     
     if(!name){
         return res.status(400).json({"error":"Place name is required"})

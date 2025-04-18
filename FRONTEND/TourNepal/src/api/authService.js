@@ -127,7 +127,14 @@ export const getNearbyPlaces = async (locationDetails)=>{
     const radius = locationDetails.radius;
     const destinationType = locationDetails.destinationType;
     try{
-        const response = await baseUrl.post(NEARBY_PLACES,JSON.stringify({location,radius,destinationType}),{
+        const response = await baseUrl.get(NEARBY_PLACES,{
+            params:{
+                longitude: location.longitude,
+                latitude: location.latitude,
+                radius: radius,
+                destinationType: destinationType
+            }
+        },{
             headers: { 'Content-Type': 'application/json' },
             withCredentials:true
         })
@@ -225,7 +232,7 @@ export const getDescriptionOfPalce = async (placeName)=>{
     const GET_DESCRIPTION = "/location/getDescription"
 
     try{
-        const response = await baseUrl.post(GET_DESCRIPTION,{"name":placeName})
+        const response = await baseUrl.get(GET_DESCRIPTION,{params:{name:placeName}})
         return response
     }catch(e){
         if(e.response){
