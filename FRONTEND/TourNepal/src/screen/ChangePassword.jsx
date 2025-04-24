@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useState,useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView,Alert} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
+import { getToken, storeTokens } from '../utils/TokenStorage';
+import { changePassword, refreshToken } from '../api/authService';
+import ErrMessage from '../components/ErrMessage';
 
 const ChangePasswordScreen = () => {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -10,10 +13,102 @@ const ChangePasswordScreen = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [oldPasswordErrMsg, setOldPasswordErrMsg] = useState('');
+  const [newPasswordErrMsg, setNewPasswordErrMsg] = useState('');
+  const [confirmPasswordErrMsg, setConfirmPasswordErrMsg] = useState('');
 
-  const handleChangePassword = () => {
+  useEffect(() => {
+    checkFields();
+  }, [currentPassword, newPassword, confirmPassword]);
+
+  const handleChangePassword =async () => {
+   
+    if (checkFields()) { 
+      Alert.alert('Validation Error', 'Please fix all errors before submitting');
+      return;
+    }
+    const token = await getToken();
+   
+    const response = await changePassword(newPassword,currentPassword,token.accessToken);
     
+    if(response?.status===200){
+      Alert.alert('Password Updated', 'Your password has been updated successfully.');
+      setConfirmPassword('');
+      setCurrentPassword('');
+      setNewPassword('');
+    }else if(response?.status===403){
+      const newToken =await refreshToken(token.encryptedToken);
+      if (newToken?.status === 200) {
+        setOldPasswordErrMsg('');
+        storeTokens(newToken.data.accessToken, token.encryptedToken);
+        const response = await changePassword(updatedPassword,oldPassword,token.accessToken);
+        if(response?.status===200){
+          Alert.alert('Password Updated', 'Your password has been updated successfully.');
+          setConfirmPassword('');
+          setCurrentPassword('');
+          setNewPassword('');
+        }else{
+          Alert.alert('Something went wrong');
+        }
+      }else{
+        Alert.alert('Something went wrong');
+      }
+    }else if(response?.status===400){
+     setOldPasswordErrMsg('Incorrect current password');
+     
+    }
   };
+
+
+  const checkFields = () => {
+    let hasErrors = false;
+    const newErrors = {
+      oldPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    };
+
+    // Check current password
+    if (!currentPassword.trim()) {
+      newErrors.oldPassword = 'Please enter current password';
+      hasErrors = true;
+    }
+
+    // Check new password
+    if (!newPassword.trim()) {
+      newErrors.newPassword = 'Please enter new password';
+      hasErrors = true;
+    }
+
+    // Check confirm password
+    if (!confirmPassword.trim()) {
+      newErrors.confirmPassword = 'Please confirm new password';
+      hasErrors = true;
+    }
+
+    // Check password match
+    if (newPassword !== confirmPassword && confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+      hasErrors = true;
+    }
+
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (newPassword && !passwordRegex.test(newPassword)) {
+      newErrors.newPassword = 'Password does not meet requirements';
+      hasErrors = true;
+    }
+
+    // Update state with errors
+    setOldPasswordErrMsg(newErrors.oldPassword);
+    setNewPasswordErrMsg(newErrors.newPassword);
+    setConfirmPasswordErrMsg(newErrors.confirmPassword);
+
+    return hasErrors;
+  }
+
+
+
 
   return (
     <View style={styles.container}>
@@ -45,7 +140,7 @@ const ChangePasswordScreen = () => {
               />
             </TouchableOpacity>
           </View>
-
+          <ErrMessage message={oldPasswordErrMsg} />
           {/* New Password Input */}
           <View style={styles.inputContainer}>
             <FontAwesome name="key" size={20} color="#3b82f6" style={styles.icon} />
@@ -68,6 +163,7 @@ const ChangePasswordScreen = () => {
               />
             </TouchableOpacity>
           </View>
+          <ErrMessage message={newPasswordErrMsg} />
 
           {/* Confirm Password Input */}
           <View style={styles.inputContainer}>
@@ -91,6 +187,7 @@ const ChangePasswordScreen = () => {
               />
             </TouchableOpacity>
           </View>
+          <ErrMessage message={confirmPasswordErrMsg} />
 
           {/* Password Requirements */}
           <View style={styles.requirementsContainer}>

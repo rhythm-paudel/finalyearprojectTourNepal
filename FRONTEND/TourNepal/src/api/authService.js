@@ -333,3 +333,24 @@ export const updateEmail = async (email,token)=>{
         return null
     }
 }
+
+
+export const changePassword = async (updatedPassword,oldPassword,token)=>{
+
+    
+   const UPDATE_PASSWORD = "/userDetail/updateUser"
+   try{
+        const response = await baseUrl.put(UPDATE_PASSWORD,{oldPassword,updatedPassword},
+            {
+                headers:{'Authorization':`Bearer ${token}`},
+                withCredentials:true
+            }
+        )
+        return response
+   }catch(e){
+        if(e.response){
+            return e.response
+        }
+        return null
+   }
+}

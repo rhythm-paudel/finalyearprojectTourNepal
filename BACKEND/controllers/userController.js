@@ -67,8 +67,23 @@ const updateUser = async (req,res)=>{
             res.status(200).json({message:"User Email Updated"})
             return
         }
-        if(updatedPassword&&!updatedEmail){
-            //response = updateUserPassword(updatedPassword)
+        if(updatedPassword&&oldPassword&&!updatedEmail){
+            const match = await bcrypt.compare(oldPassword, userDB.password);
+            if(!match)return res.status(400).json({ message: "Incorrect Old Password" });
+            const hashedPwd = await bcrypt.hash(updatedPassword, 10);
+
+            const result = await User.findOneAndUpdate({email},
+                {
+                    $set:{"password":hashedPwd}
+                },
+                {new:true}
+            )
+             if(!result){
+                res.status(404).json({message:"Password could not be updated"})
+                return
+            }
+            res.status(200).json({message:"Password Updated successfully."})
+            return
         }
 
         if(deletionRequest===true){
