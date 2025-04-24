@@ -1,12 +1,32 @@
 import React,{useState,useContext} from 'react'
 import { Link } from 'react-router-dom'
 import AuthContext from '../context/AuthProvider';
+import baseUrl from  "../api/baseUrl"
+import { useNavigate } from 'react-router-dom';
 
-function Navbar() {
 
-  const {user} = useContext(AuthContext);
+const Navbar =  () =>{
+
+  const {user,setUser} = useContext(AuthContext);
 
   const [currentPage, setCurrentPage] = useState('Home'); //for updating the view of current page in sidebar
+  const navigate = useNavigate();
+  const handleLogout=async ()=>{
+    try{
+    const response =await baseUrl.post('/admin/logout',{},{
+      withCredentials: true
+    });
+
+    if(response?.status===200){
+      setUser(null);
+      navigate('/login');
+    }
+    
+    }catch(e){
+      console.log(e.message);
+      
+    }
+  }
 
   return (
     <div className="w-64 min-h-screen bg-gray-900 text-white flex flex-col p-5 space-y-6">
@@ -88,6 +108,7 @@ function Navbar() {
         <Link 
           to="/login" 
           className="flex items-center space-x-3 py-3 px-4 rounded-lg transition-colors duration-300 hover:bg-gray-800 hover:text-indigo-400"
+          onClick={handleLogout}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />

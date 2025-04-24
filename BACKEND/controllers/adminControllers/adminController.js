@@ -47,6 +47,18 @@ const login = async (req, res) => {
 }
 
 
+const logout = async (req,res)=>{
+   console.log("comming here")
+    
+    res.clearCookie("jwt", {
+        httpOnly: true, 
+        sameSite: 'None', 
+        secure: false,
+        maxAge: 0
+    });
 
+    
+    return res.sendStatus(200);
+}
 
-module.exports = {login}
+module.exports = {login,logout}

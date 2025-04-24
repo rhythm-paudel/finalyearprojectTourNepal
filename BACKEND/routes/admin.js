@@ -8,6 +8,7 @@ const userController = require('../controllers/adminControllers/userController')
 const {verifyJWT} = require('../controllers/adminControllers/verifyAdminJWT')
 
 router.post('/login', adminController.login);
+router.post('/logout',adminController.logout)
 router.get('/refreshtoken', handleRefreshToken.handleRefreshToken);
 
 //contact actions
