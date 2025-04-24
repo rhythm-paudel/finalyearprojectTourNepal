@@ -14,7 +14,7 @@ const sendNotifications = async(req, res) => {
     
     // Check if tokens is an array and if title and body are provided
     if(!tokens || !Array.isArray(tokens) || tokens.length === 0 || !title || !body) {
-      return res.status(400).send("Invalid request: tokens array, title, and body are required");
+      return res.status(400).json({message:"Invalid request: tokens array, title, and body are required"});
     }
     
 

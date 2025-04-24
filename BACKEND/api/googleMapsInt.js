@@ -15,9 +15,8 @@ const getNearbyDestinations = async (latitude,longitude, radius, destinationType
 
   
   try {
-    if (radius === NaN) {
+    if (isNaN(rad)) {
 
-      
       destinations = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${radius}+in+Nepal&region=np&key=${process.env.GOOGLE_MAPS_API_KEY}`;
     }
 

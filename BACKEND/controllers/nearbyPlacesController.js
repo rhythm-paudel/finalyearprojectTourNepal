@@ -7,7 +7,7 @@ const Reviews = require('../model/Reviews');
 const getNearbyPlaces = async (req,res)=>{
     const {latitude,longitude,radius,destinationType} = req.query
     const decodedRadius = radius
-    console.log(radius);
+    //console.log(radius);
     
     if(!latitude ||!longitude|| !radius) return res.status(400).json({ message: "Location and Latitude are required." });
 

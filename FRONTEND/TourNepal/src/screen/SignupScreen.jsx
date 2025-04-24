@@ -253,7 +253,7 @@ const SignupScreen = () => {
           setIsLoading(false);
         }else if(registered?.status===409){
           setIsLoading(false);
-          Alert.alert("Existing user",`Please login with different email`)
+          Alert.alert("Existing user",`Please signup with different email`)
           setIsLoading(false);
         }else if(registered?.status===500){
           setIsLoading(false);
