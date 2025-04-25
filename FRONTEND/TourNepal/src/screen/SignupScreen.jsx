@@ -101,8 +101,22 @@ const SignupScreen = () => {
     }
 
     if(pageNumber===3){
-      newErrors.password = !formData.password?'Password is required' : formData.password.length < 8 ? 'Minimum 8 characters are required':'';
-      newErrors.confirmPassword = formData.password !== formData.confirmPassword ? 'Passwords do not match' :'';
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      
+     
+      newErrors.password = !formData.password 
+        ? 'Password is required' 
+        : !passwordRegex.test(formData.password)  
+        ? 'Password must contain:\n- 8+ characters\n- 1 uppercase letter\n- 1 number\n- 1 special character (@$!%*?&)'
+        : '';
+    
+     
+      newErrors.confirmPassword = formData.password !== formData.confirmPassword 
+        ? 'Passwords do not match' 
+        : !formData.confirmPassword
+        ? 'Please confirm your password'
+        : '';
+    
       isValid = !newErrors.password && !newErrors.confirmPassword;
     }
 
@@ -399,6 +413,7 @@ const SignupScreen = () => {
                   styles.inputContainer,
                   { borderColor: inputFocus.password ? '#3498db' : '#ccc', transform: [{ scale: passwordScale }] }
                 ]}>
+                
                   <FontAwesome name="lock" size={20} color={inputFocus.password ? '#3498db' : 'grey'} />
                   <TextInput
                     value={formData.password}

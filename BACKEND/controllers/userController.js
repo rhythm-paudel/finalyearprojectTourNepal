@@ -68,8 +68,15 @@ const updateUser = async (req,res)=>{
             return
         }
         if(updatedPassword&&oldPassword&&!updatedEmail){
+            // Password regex pattern to check 
+            const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
             const match = await bcrypt.compare(oldPassword, userDB.password);
             if(!match)return res.status(400).json({ message: "Incorrect Old Password" });
+            if (!PASSWORD_REGEX.test(updatedPassword)) {
+                return res.status(400).json({
+                    message: 'Password must contain:\n- At least 8 characters\n- One uppercase letter\n- One number\n- One special character (@$!%*?&)'
+                });
+            }
             const hashedPwd = await bcrypt.hash(updatedPassword, 10);
 
             const result = await User.findOneAndUpdate({email},
